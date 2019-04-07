@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+    <RootNamespace>Dx2_DiscordBot</RootNamespace>
+    <StartupObject>Dx2_DiscordBot.Program</StartupObject>
+    <Copyright>u/AlenaelReal</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="12.1.2" />
+    <PackageReference Include="Discord.Net" Version="2.0.1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.9.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="app.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

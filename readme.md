@@ -2,7 +2,13 @@ This bot allows pulling of Demon or Skill information directly into DIscord. It 
 </br>
 Commands:</br>
 !dx2help - Shows a list of commands that can be used </br>
-
+</br>
+Demon Commands:</br>
+!dx2demon [Demon Name] - Returns information on the demon you asked for.</br>
+</br>
+Skill Commands: </br>
+!dx2skill [Skill Name] - Returns information on the skill you asked for.</br>
+</br>
 </br>
 Gatekeeper Event Commands: These commands will only work when a Gatekeeper event is going on.</br>
 !gkmyfaction - Displays your Faction's Rank and Damage. Faction Name is derived from your Discord Server Name.. make sure its 100% the same as your in-game name.</br>

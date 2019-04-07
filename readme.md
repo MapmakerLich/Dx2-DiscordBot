@@ -9,7 +9,6 @@ Demon Commands:</br>
 Skill Commands: </br>
 !dx2skill [Skill Name] - Returns information on the skill you asked for.</br>
 </br>
-</br>
 Gatekeeper Event Commands: These commands will only work when a Gatekeeper event is going on.</br>
 !gkmyfaction - Displays your Faction's Rank and Damage. Faction Name is derived from your Discord Server Name.. make sure its 100% the same as your in-game name.</br>
 !gktop150 - Shows all top 150 ranks and there ranking and damage done overall. Can use any number between 1 and 150.</br>

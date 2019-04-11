@@ -24,6 +24,7 @@ namespace Dx2_DiscordBot
             // It is recommended to Dispose of a client when you are finished
             // using it, at the end of your app's lifetime.
             _client = new DiscordSocketClient();
+            Logger.SetupLogger();
 
             _client.Log += Logger.LogAsync;
             _client.Ready += ReadyAsync;

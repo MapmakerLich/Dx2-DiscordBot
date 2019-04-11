@@ -44,10 +44,17 @@ namespace Dx2_DiscordBot
             if (message.Content.StartsWith(MainCommand))
             {
                 var items = message.Content.Split(MainCommand);
-                var dataRow = Demons.Rows.Find(items[1].Trim());
-                var demon = LoadDemon(dataRow);
+                var dataRow = Demons.Rows.Find(items[1].Trim().Replace("*", "☆"));
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
-                    await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
+                {
+                    if (dataRow == null)
+                        await chnl.SendMessageAsync("Could not find: " + items[1].Trim().Replace("*", "☆"), false);
+                    else
+                    {
+                        var demon = LoadDemon(dataRow);
+                        await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
+                    }
+                }
             }
         }
 
@@ -55,7 +62,7 @@ namespace Dx2_DiscordBot
         public override string GetCommands()
         {
             return "\n\nDemon Commands:" +
-            "\n* " + MainCommand + " [Demon Name] - Search's for a demon with the name you provided as [Demon Name]. If nothing is found you will recieve a message back stating Demon was not found.";
+            "\n* " + MainCommand + " [Demon Name] - Search's for a demon with the name you provided as [Demon Name]. If nothing is found you will recieve a message back stating Demon was not found. Alternate demons can be found like.. Shiva A, Nekomata A. ☆ can be interperted as * when performing searches like... Nero*, V*";
         }
 
         #endregion
@@ -226,7 +233,7 @@ namespace Dx2_DiscordBot
         public Embed WriteToDiscord()
         {
             var url = "https://dx2wiki.com/index.php/" + Uri.EscapeDataString(Name);
-            var thumbnail = "https://teambuilder.dx2wiki.com/Images/Demons/" + Uri.EscapeDataString(Name) + ".jpg";
+            var thumbnail = "https://teambuilder.dx2wiki.com/Images/Demons/" + Uri.EscapeDataString(Name.Replace("☆", "")) + ".jpg";
             
             var eb = new EmbedBuilder();
             eb.WithTitle(Name);

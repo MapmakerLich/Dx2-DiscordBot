@@ -45,9 +45,17 @@ namespace Dx2_DiscordBot
             {
                 var items = message.Content.Split(MainCommand);
                 var dataRow = Skills.Rows.Find(items[1].Trim());
-                var skill = LoadSkill(dataRow);
+                
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
-                    await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
+                {
+                    if (dataRow == null)                    
+                        await chnl.SendMessageAsync("Could not find: " + items[1].Trim(), false);                    
+                    else
+                    {
+                        var skill = LoadSkill(dataRow);
+                        await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
+                    }
+                }                   
             }
         }
 

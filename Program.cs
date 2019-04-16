@@ -10,7 +10,7 @@ namespace Dx2_DiscordBot
     class Program
     {
         //Our Discord Client
-        private readonly DiscordSocketClient _client;
+        private DiscordSocketClient _client;
         
         //List of retrievers for us to make use of for data consumption
         private List<RetrieverBase> Retrievers = new List<RetrieverBase>();
@@ -19,8 +19,8 @@ namespace Dx2_DiscordBot
         public static void Main(string[] args)
             => new Program().MainAsync().GetAwaiter().GetResult();
 
-        public Program()
-        {
+        public async Task MainAsync()
+        {           
             // It is recommended to Dispose of a client when you are finished
             // using it, at the end of your app's lifetime.
             _client = new DiscordSocketClient();
@@ -29,10 +29,7 @@ namespace Dx2_DiscordBot
             _client.Log += Logger.LogAsync;
             _client.Ready += ReadyAsync;
             _client.MessageReceived += MessageReceivedAsync;
-        }
 
-        public async Task MainAsync()
-        {
             //Environment.SetEnvironmentVariable("token", "EnterYourTokenHereAndThenUncommentAndRunTHENREMOVE", EnvironmentVariableTarget.User); 
             //Or simply create the environment variable called token with your token as the value
             // Tokens should be considered secret data, and never hard-coded.

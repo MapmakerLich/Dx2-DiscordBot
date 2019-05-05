@@ -144,7 +144,7 @@ namespace Dx2_DiscordBot
 
             //Only send a message when we have data
             if (message == "")
-                message = "Couldn't find any factions something must be wrong please contact Alenael.";
+                message = "Couldn't find any factions. Is a GK Event going on? If so contact @Alenael.1801 for assistance.";
 
             if (chnl != null)
             {
@@ -202,10 +202,7 @@ namespace Dx2_DiscordBot
             if (message == "")
             {
                 message = "Could not locate Faction: " + factionName +
-                    ". Does your Discord Server name match your Faction name? Here is a list of what I found:";
-
-                if (factions != null)
-                    message = factions.Aggregate(message, (current, f) => current + "\n" + f.Name);
+                    ". Does your Discord Server name match your Faction name?";
             }
 
             if (chnl != null)

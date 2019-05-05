@@ -12,7 +12,7 @@ namespace Dx2_DiscordBot
     {
         #region Properties
 
-        private static DataTable Skills;
+        private static List<Skill> Skills;
 
         #endregion
 
@@ -31,8 +31,12 @@ namespace Dx2_DiscordBot
         //Initialization
         public async override Task ReadyAsync()
         {
-            Skills = await GetCSV("https://raw.githubusercontent.com/Alenael/Dx2DB/master/csv/SMT Dx2 Database - Skills.csv");
-            Skills.PrimaryKey = new DataColumn[] { Skills.Columns["Name"] };
+            var skillDt = await GetCSV("https://raw.githubusercontent.com/Alenael/Dx2DB/master/csv/SMT Dx2 Database - Skills.csv");            
+
+            var tempSkills = new List<Skill>();
+            foreach (DataRow row in skillDt.Rows)
+                tempSkills.Add(LoadSkill(row));
+            Skills = tempSkills;
         }
 
         //Recieve Messages here
@@ -44,17 +48,14 @@ namespace Dx2_DiscordBot
             if (message.Content.StartsWith(MainCommand))
             {
                 var items = message.Content.Split(MainCommand);
-                var dataRow = Skills.Rows.Find(items[1].Trim());
+                var skill = Skills.Find(s => s.Name.ToLower() == items[1].Trim().ToLower());
                 
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
                 {
-                    if (dataRow == null)                    
+                    if (skill.Name == "") 
                         await chnl.SendMessageAsync("Could not find: " + items[1].Trim(), false);                    
-                    else
-                    {
-                        var skill = LoadSkill(dataRow);
-                        await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
-                    }
+                    else                                           
+                        await chnl.SendMessageAsync("", false, skill.WriteToDiscord());                    
                 }                   
             }
         }
@@ -74,8 +75,8 @@ namespace Dx2_DiscordBot
         private static Skill LoadSkill(DataRow row)
         {
             var name = row["Name"] is DBNull ? "" : (string)row["Name"];
-            
-            return new Skill
+
+            var skill = new Skill
             {
                 Name = name,
                 Element = row["Element"] is DBNull ? "" : (string)row["Element"],
@@ -85,8 +86,12 @@ namespace Dx2_DiscordBot
                 Sp = row["Skill Points"] is DBNull ? "" : (string)row["Skill Points"],
                 ExtractExclusive = row["ExtractExclusive"] != null ? false : (bool)row["ExtractExclusive"],
                 DuelExclusive = row["DuelExclusive"] != null ? false : (bool)row["DuelExclusive"],
-                ExtractTransfer = row["ExtractTransfer"] != null ? false : (bool)row["ExtractTransfer"],
+                ExtractTransfer = row["ExtractTransfer"] != null ? false : (bool)row["ExtractTransfer"]
             };
+            
+            skill.BuildSKill(DemonRetriever.GetDemonsWithSkill(name));
+
+            return skill;
         }
 
         #endregion
@@ -107,18 +112,19 @@ namespace Dx2_DiscordBot
         public bool ExtractExclusive;
         public bool DuelExclusive;
         public bool ExtractTransfer;
+        public string TransferrableFrom;        
 
         public Embed WriteToDiscord()
         {
             //Perform some fixes on values before exporting
 
-           Name = DemonRetriever.FixSkillsNamedAsDemons(Name);
+            Name = DemonRetriever.FixSkillsNamedAsDemons(Name);
             Element = char.ToUpper(Element[0]) + Element.Substring(1);
 
             if (Sp == "")
                 Sp = "-";
 
-            Description = Description.Replace("\\n", "\n");
+            Description = Description.Replace("\\n", "\n") + TransferrableFrom;
 
             var url = "https://dx2wiki.com/index.php/" + Uri.EscapeDataString(Name);
             var thumbnail = "https://teambuilder.dx2wiki.com/Images/Spells/" + Uri.EscapeDataString(Element) + ".png";
@@ -134,6 +140,24 @@ namespace Dx2_DiscordBot
             eb.WithUrl(url);
             eb.WithThumbnailUrl(thumbnail);
             return eb.Build();
+        }
+
+        //Builds out our skill with additional details that require some processing
+        public void BuildSKill(Dictionary<string, List<Demon>> skillInfos)
+        {
+            var transferrableFrom = "";
+
+            if (skillInfos["Transferrable"].Count > 0)
+            {
+                transferrableFrom += "\n\n Transferrable From: ";
+
+                foreach(var s in skillInfos["Transferrable"])
+                    transferrableFrom += s.Name + ", ";
+
+                transferrableFrom = transferrableFrom.Remove(transferrableFrom.Length-2, 2);
+            }
+
+            TransferrableFrom = transferrableFrom;
         }
     }
 

@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.OleDb;
 using Newtonsoft.Json;
 using CsvHelper;
+using Discord;
 
 namespace Dx2_DiscordBot
 {
@@ -53,6 +54,9 @@ namespace Dx2_DiscordBot
             //Only record messages that start with Main Command to console for debugging purposes
             if (message.Content.StartsWith(MainCommand))
                 await Logger.LogAsync(serverName + " Sent: " + message.Content);
+
+            if (message.Content.StartsWith("!dx2reload"))            
+                await ReadyAsync();            
         }
 
         //Returns list of commands for this Retriever

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -9,54 +12,75 @@ namespace Dx2_DiscordBot
 {
     class Program
     {
+        //Used to minimize
+        [DllImport("User32.dll", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool ShowWindow([In] IntPtr hWnd, [In] int nCmdShow);
+
         //Our Discord Client
         private DiscordSocketClient _client;
         
         //List of retrievers for us to make use of for data consumption
         private List<RetrieverBase> Retrievers = new List<RetrieverBase>();
 
+        public static bool IsRunning = false;
+        
         //Main Entry Point
         public static void Main(string[] args)
             => new Program().MainAsync().GetAwaiter().GetResult();
 
         public async Task MainAsync()
-        {           
-            // It is recommended to Dispose of a client when you are finished
-            // using it, at the end of your app's lifetime.
-            _client = new DiscordSocketClient();
-            Logger.SetupLogger();
+        {
+            //Only allow 1 instance of our program to run
+            if (Program.IsRunning == false)
+            {
+                //Minimize our application
+                ShowWindow(Process.GetCurrentProcess().MainWindowHandle, 6);
 
-            _client.Log += Logger.LogAsync;
-            _client.Ready += ReadyAsync;
-            _client.MessageReceived += MessageReceivedAsync;
+                // It is recommended to Dispose of a client when you are finished
+                // using it, at the end of your app's lifetime.
+                _client = new DiscordSocketClient();
+                Logger.SetupLogger();
 
-            //Environment.SetEnvironmentVariable("token", "EnterYourTokenHereAndThenUncommentAndRunTHENREMOVE", EnvironmentVariableTarget.User); 
-            //Or simply create the environment variable called token with your token as the value
-            // Tokens should be considered secret data, and never hard-coded.
-            await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("token", EnvironmentVariableTarget.User));
-            await _client.StartAsync();
+                _client.Log += Logger.LogAsync;
+                _client.Ready += ReadyAsync;
+                _client.MessageReceived += MessageReceivedAsync;
 
-            // Block the program until it is closed.
-            await Task.Delay(-1);
+                //Environment.SetEnvironmentVariable("token", "EnterYourTokenHereAndThenUncommentAndRunTHENREMOVE", EnvironmentVariableTarget.User); 
+                //Or simply create the environment variable called token with your token as the value
+                // Tokens should be considered secret data, and never hard-coded.
+                await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("token", EnvironmentVariableTarget.User));
+                await _client.StartAsync();
+
+
+                // Block the program until it is closed.
+                await Task.Delay(-1);
+            }
         }
 
         // The Ready event indicates that the client has opened a
         // connection and it is now safe to access the cache.
         private async Task ReadyAsync()
         {
-            await Logger.LogAsync($"{_client.CurrentUser} is connected!");
+            if (Program.IsRunning == false)
+            {
+                await Logger.LogAsync($"{_client.CurrentUser} is connected!");
 
-            //Set what we are playing
-            await _client.SetGameAsync("!dx2help for Commands");
+                //Set what we are playing
+                await _client.SetGameAsync("!dx2help for Commands");
 
-            //Add all our Retrievers to our list
-            Retrievers.Add(new DemonRetriever(_client));
-            Retrievers.Add(new SkillRetriever(_client));            
-            Retrievers.Add(new GKRetriever(_client));
+                //Add all our Retrievers to our list
+                Retrievers.Add(new DemonRetriever(_client));
+                Retrievers.Add(new SkillRetriever(_client));
+                Retrievers.Add(new GKRetriever(_client));
+                Retrievers.Add(new AG2Retriever(_client));
 
-            //Allow each Retriever to initialize
-            foreach (var retriever in Retrievers)
-                await retriever.ReadyAsync();
+                //Allow each Retriever to initialize
+                foreach (var retriever in Retrievers)
+                    await retriever.ReadyAsync();
+                
+                Program.IsRunning = true;
+            }
         }
 
         // This is not the recommended way to write a bot - consider

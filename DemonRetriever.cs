@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,8 +13,8 @@ namespace Dx2_DiscordBot
     {
         #region Properties
 
-        private static DataTable Demons;
-        
+        private static List<Demon> Demons;
+
         #endregion
 
         #region Constructor
@@ -31,8 +32,13 @@ namespace Dx2_DiscordBot
         //Initialization
         public async override Task ReadyAsync()
         {
-            Demons = await GetCSV("https://raw.githubusercontent.com/Alenael/Dx2DB/master/csv/SMT Dx2 Database - Demons.csv");
-            Demons.PrimaryKey = new DataColumn[] { Demons.Columns["Name"] };
+            var demonsDt = await GetCSV("https://raw.githubusercontent.com/Alenael/Dx2DB/master/csv/SMT Dx2 Database - Demons.csv");
+            //demons.PrimaryKey = new DataColumn[] { Demons.Columns["Name"] };
+
+            var tempDemons = new List<Demon>();
+            foreach(DataRow row in demonsDt.Rows)            
+                tempDemons.Add(LoadDemon(row));            
+            Demons = tempDemons;            
         }
 
         //Recieve Messages here
@@ -44,16 +50,23 @@ namespace Dx2_DiscordBot
             if (message.Content.StartsWith(MainCommand))
             {
                 var items = message.Content.Split(MainCommand);
-                var dataRow = Demons.Rows.Find(items[1].Trim().Replace("*", "☆"));
+
+                //var test = Demons.FindAll(d =>                 
+                //d.Name.Length >= 3 ?                 
+                //Calculators.EditDistance(d.Name.ToLower(), items[1].Trim().Replace("*", "☆").ToLower()) <= 2 :
+                //d.Name.ToLower() == items[1].Trim().Replace("*", "☆").ToLower());
+
+//                await Logger.LogAsync(items[1].Trim().Replace("*", "☆").ToLower() + " found " + test.Name);
+
+                //Calculators.EditDistance(d.Name.ToLower(), items[1].Trim().Replace("*", "☆").ToLower())
+
+                var demon = Demons.Find(d => d.Name.ToLower() == items[1].Trim().Replace("*", "☆").ToLower()); //.Rows.Find(items[1].Trim().Replace("*", "☆"));
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
                 {
-                    if (dataRow == null)
+                    if (demon.Name == "")
                         await chnl.SendMessageAsync("Could not find: " + items[1].Trim().Replace("*", "☆"), false);
-                    else
-                    {
-                        var demon = LoadDemon(dataRow);
-                        await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
-                    }
+                    else                    
+                        await chnl.SendMessageAsync("", false, demon.WriteToDiscord());                    
                 }
             }
         }
@@ -76,9 +89,9 @@ namespace Dx2_DiscordBot
 
             if (newName != "")
             {
-                foreach (DataRow item in Demons.Rows as DataRowCollection)
+                foreach (var d in Demons)
                 {
-                    if ((string)item["Name"] == newName)
+                    if (d.Name == newName)
                     {
                         newName = newName + " (Skill)";
                         return newName;
@@ -87,6 +100,25 @@ namespace Dx2_DiscordBot
             }
 
             return newName;
+        }
+
+        //Returns a list of demons that have a skill allows for expandability later on via different sets of data points
+        public static Dictionary<string, List<Demon>> GetDemonsWithSkill(string skillName)
+        {
+            var fixedName = FixSkillsNamedAsDemons(skillName);
+
+            var demons = new Dictionary<string, List<Demon>>();
+            
+            var transferableDemons = Demons.Where(
+                d => d.Skill1 == fixedName ||
+                d.GachaP == fixedName ||
+                d.GachaR == fixedName ||
+                d.GachaY == fixedName ||
+                d.GachaT == fixedName).ToList();
+
+            demons.Add("Transferrable", transferableDemons);
+
+            return demons;
         }
 
         //Creates a demon object from a data grid view row
@@ -146,32 +178,9 @@ namespace Dx2_DiscordBot
         private static string LoadResist(string value)
         {
             if (value == "" || value == null)
-                return "  -   ";
-            else
-            {
-                var type = "";
+                return "";
 
-                switch (value)
-                {
-                    case "rs":
-                        type = "Resist";
-                        break;
-                    case "rp":
-                        type = "Repel";
-                        break;
-                    case "wk":
-                        type = "Weak";
-                        break;
-                    case "nu":
-                        type = "<Null>";
-                        break;
-                    case "ab":
-                        type = "<Drain>";
-                        break;
-                }
-
-                return type;
-            }
+            return value.First().ToString().ToUpper() + value.Substring(1);
         }
 
         #endregion
@@ -238,6 +247,32 @@ namespace Dx2_DiscordBot
             var eb = new EmbedBuilder();
             eb.WithTitle(Name);
 
+            var resist = "";
+
+            if (Phys != "")
+                resist += "| Phys: " + Phys + " ";
+
+            if (Fire != "")
+                resist += " | Fire: " + Fire + " ";
+
+            if (Ice != "")
+                resist += " | Ice: " + Ice + " ";
+
+            if (Elec != "")
+                resist += " | Elec: " + Elec + " ";
+
+            if (Force != "")
+                resist += " | Force: " + Force + " ";
+
+            if (Light != "")
+                resist += " | Light: " + Light + " ";
+
+            if (Dark != "")
+                resist += " | Dark: " + Dark + " ";
+
+            if (resist.Length > 0)
+                resist = resist.Remove(0, 3);
+
             eb.WithDescription(        
                 "Skills:" + "\n" +
                 "Skill 1: " + GenerateWikiLink(Skill1) + "\n" +
@@ -247,7 +282,8 @@ namespace Dx2_DiscordBot
                 "Red: " + GenerateWikiLink(AwakenR) + " | " + GenerateWikiLink(GachaR) + "\n" +
                 "Yellow: " + GenerateWikiLink(AwakenY) + " | " + GenerateWikiLink(GachaY) + "\n" +
                 "Teal: " + GenerateWikiLink(AwakenT) + " | " + GenerateWikiLink(GachaT) + "\n" +
-                "Purple: " + GenerateWikiLink(AwakenP) + " | " + GenerateWikiLink(GachaP) + "\n\n");
+                "Purple: " + GenerateWikiLink(AwakenP) + " | " + GenerateWikiLink(GachaP) + "\n\n" + 
+                resist);
 
             //Other Info
             eb.AddField("Race", Race, true);

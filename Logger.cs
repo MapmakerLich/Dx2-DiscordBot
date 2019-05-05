@@ -1,26 +1,31 @@
-﻿using System;
-using System.IO;
+﻿using NLog;
+using System;
 using System.Threading.Tasks;
 
 namespace Dx2_DiscordBot
 {
     public class Logger
     {
-        public static StreamWriter LogFile;
+        private static NLog.Logger logger = LogManager.GetCurrentClassLogger();
 
         //Entry Way
         public static void SetupLogger()
         {
-            if (!File.Exists("log.txt"))
-                File.Create("log.txt");
-            Logger.LogFile = File.AppendText("log.txt");
-        }
+            var config = new NLog.Config.LoggingConfiguration();
 
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "log.txt" };            
+            config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
+            LogManager.Configuration = config;
+
+            LogAsync("Starting new Session..");
+        }
 
         //Performs some simple logging for our application
         public static Task LogAsync(string log)
         {
-            LogFile.WriteLine(log);
+            logger.Debug(log);
+            LogManager.Flush();
+
             Console.WriteLine(log);
             return Task.CompletedTask;
         }

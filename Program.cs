@@ -115,7 +115,7 @@ namespace Dx2_DiscordBot
                 message += retriever.GetCommands();
 
             //Add our ending
-            message += "\n\nSomething not working? DM darkseraphim#1801 on Discord or contact u/AlenaelReal on the sub reddit r/Dx2SMTLiberation/ for help.```";
+            message += "\n\nSomething not working? DM darkseraphim#1801 on Discord or contact u/AlenaelReal on reddit for help.```";
 
             if (_client.GetChannel(id) is IMessageChannel chnl)
                 await chnl.SendMessageAsync(message);

@@ -112,7 +112,7 @@ namespace Dx2_DiscordBot
             return "\n\nGatekeeper Event Commands: These commands will only work when a Gatekeeper event is going on." +
             "\n* !gkmyfaction - Displays your Faction's Rank and Damage. Faction Name is derived from your Discord Server Name.. make sure its 100% the same as your in-game name." +
             "\n* !gkbyname [Faction Name] - Gets a faction by its name allowing you to type your faction name in and get it back instead of using Discord Server name. Replace [Faction Name] with your factions exact name." +
-            "\n* !gktop### - Displays a list of the top damage Factions up to the top 150 (ex: !gktop10, !gktop25, !gktop50, etc.)";
+            "\n* !gktop### - Displays a list of the top damage Factions up to the top 150 (ex: !gktop10, !gktop25, !gktop50, etc.). Restricted to only !gktop10 on Dx2 Liberation Server.";
         }
 
         #endregion
@@ -150,7 +150,7 @@ namespace Dx2_DiscordBot
 
             //Only send a message when we have data
             if (message == "")
-                message = "Couldn't find any factions. Is a GK Event going on? If so contact @Alenael.1801 for assistance.";
+                message = "Couldn't find any factions. Is a GK Event started yet? If so contact @Alenael.1801 for assistance.";
 
             if (chnl != null)
             {

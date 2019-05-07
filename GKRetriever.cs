@@ -136,6 +136,12 @@ namespace Dx2_DiscordBot
             //Ensures we can always have enough factions to loop through
             topAmount = Math.Min(topAmount, Factions.Count);
 
+            //Force the official discord to a max of 10
+            if (((SocketGuildChannel)chnl).Guild.Name == "Dx2 Liberation")
+            {
+                topAmount = Math.Min(topAmount, 10);
+            }
+
             for (var i = 0; i < topAmount; i++)
             {
                 var f = Factions[i];
@@ -179,7 +185,20 @@ namespace Dx2_DiscordBot
                 factionName = factions[factions.Count - 1].Name;
             }
 
-            Factions = tempFactions;
+            lock (Factions)
+                Factions = tempFactions;
+
+            //Print Results to log for use later           
+            var maxAmount = Convert.ToInt32(ConfigurationManager.AppSettings["topAmount"]);
+            var message = "";
+            for (var i = 0; i < maxAmount; i++)
+            {
+                var f = Factions[i];
+                message += f.Rank + " | " + f.Name + " | " + f.Damage + "\n";
+            }
+
+            if (Factions.Count() > 0)
+                await Logger.LogAsync("Faction Results: " + Factions.Count() + "\n" +  message);
         }
 
         //Writes your factions rank and damage

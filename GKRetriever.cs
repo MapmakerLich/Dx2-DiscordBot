@@ -154,7 +154,15 @@ namespace Dx2_DiscordBot
 
             if (chnl != null)
             {
-                await chnl.SendMessageAsync("```md\n" + message + "```");
+                var chunkSize = 1500;
+
+                for (var i = 0; i < message.Length;)
+                {
+                    if (i + chunkSize > message.Length) chunkSize = message.Length - i;
+                    await chnl.SendMessageAsync("```md\n" + message.Substring(i, chunkSize)  +"```");
+                    i += chunkSize;
+                }
+                
                 await Logger.LogAsync(factionName + " Recieved: " + message);
             }
             else

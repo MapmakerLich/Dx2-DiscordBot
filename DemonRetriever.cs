@@ -133,45 +133,46 @@ namespace Dx2_DiscordBot
                 demonVersions = "{{DemonVersions|" + name + "|" + alternateDemon + "}}\r\n";
             }
 
-            return new Demon
-            {
-                Name = name,
-                Rarity = row["Rarity"] is DBNull ? "" : (string)row["Rarity"],
-                Race = row["Race"] is DBNull ? "" : (string)row["Race"],
-                Ai = row["Type"] is DBNull ? "" : (string)row["Type"],
-                Grade = row["Grade"] is DBNull ? "" : (string)row["Grade"],
+            var demon = new Demon();
 
-                Str = row["6★ Strength"] is DBNull ? 0 : Convert.ToInt32(row["6★ Strength"]),
-                Mag = row["6★ Magic"] is DBNull ? 0 : Convert.ToInt32(row["6★ Magic"]),
-                Vit = row["6★ Vitality"] is DBNull ? 0 : Convert.ToInt32(row["6★ Vitality"]),
-                Agi = row["6★ Agility"] is DBNull ? 0 : Convert.ToInt32(row["6★ Agility"]),
-                Luck = row["6★ Luck"] is DBNull ? 0 : Convert.ToInt32(row["6★ Luck"]),
+            demon.Name = name;
+            demon.Rarity = row["Rarity"] is DBNull ? "" : (string)row["Rarity"];
+            demon.Race = row["Race"] is DBNull ? "" : (string)row["Race"];
+            demon.Ai = row["Type"] is DBNull ? "" : (string)row["Type"];
+            demon.Grade = row["Grade"] is DBNull ? "" : (string)row["Grade"];
 
-                DemonVersions = demonVersions,
+            demon.Str = row["6★ Strength"] is DBNull ? 0 : Convert.ToInt32(row["6★ Strength"]);
+            demon.Mag = row["6★ Magic"] is DBNull ? 0 : Convert.ToInt32(row["6★ Magic"]);
+            demon.Vit = row["6★ Vitality"] is DBNull ? 0 : Convert.ToInt32(row["6★ Vitality"]);
+            demon.Agi = row["6★ Agility"] is DBNull ? 0 : Convert.ToInt32(row["6★ Agility"]);
+            demon.Luck = row["6★ Luck"] is DBNull ? 0 : Convert.ToInt32(row["6★ Luck"]);
 
-                Fire = LoadResist(row["Fire"] is DBNull ? "" : (string)row["Fire"]),
-                Dark = LoadResist(row["Dark"] is DBNull ? "" : (string)row["Dark"]),
-                Light = LoadResist(row["Light"] is DBNull ? "" : (string)row["Light"]),
-                Elec = LoadResist(row["Elec"] is DBNull ? "" : (string)row["Elec"]),
-                Ice = LoadResist(row["Ice"] is DBNull ? "" : (string)row["Ice"]),
-                Force = LoadResist(row["Force"] is DBNull ? "" : (string)row["Force"]),
-                Phys = LoadResist(row["Phys"] is DBNull ? "" : (string)row["Phys"]),
+            demon.DemonVersions = demonVersions;
 
-                Skill1 = row["Skill 1"] is DBNull ? "" : (string)row["Skill 1"],
-                Skill2 = row["Skill 2"] is DBNull ? "" : (string)row["Skill 2"],
-                Skill3 = row["Skill 3"] is DBNull ? "" : (string)row["Skill 3"],
+            demon.Fire = LoadResist(row["Fire"] is DBNull ? "" : (string)row["Fire"]);
+            demon.Dark = LoadResist(row["Dark"] is DBNull ? "" : (string)row["Dark"]);
+            demon.Light = LoadResist(row["Light"] is DBNull ? "" : (string)row["Light"]);
+            demon.Elec = LoadResist(row["Elec"] is DBNull ? "" : (string)row["Elec"]);
+            demon.Ice = LoadResist(row["Ice"] is DBNull ? "" : (string)row["Ice"]);
+            demon.Force = LoadResist(row["Force"] is DBNull ? "" : (string)row["Force"]);
+            demon.Phys = LoadResist(row["Phys"] is DBNull ? "" : (string)row["Phys"]);
 
-                AwakenC = row["Clear Awaken"] is DBNull ? "" : (string)row["Clear Awaken"],
-                AwakenR = row["Red Awaken"] is DBNull ? "" : (string)row["Red Awaken"],
-                AwakenP = row["Purple Awaken"] is DBNull ? "" : (string)row["Purple Awaken"],
-                AwakenY = row["Yellow Awaken"] is DBNull ? "" : (string)row["Yellow Awaken"],
-                AwakenT = row["Teal Awaken"] is DBNull ? "" : (string)row["Teal Awaken"],
+            demon.Skill1 = row["Skill 1"] is DBNull ? "" : (string)row["Skill 1"];
+            demon.Skill2 = row["Skill 2"] is DBNull ? "" : (string)row["Skill 2"];
+            demon.Skill3 = row["Skill 3"] is DBNull ? "" : (string)row["Skill 3"];
 
-                GachaR = row["Red Gacha"] is DBNull ? "" : (string)row["Red Gacha"],
-                GachaP = row["Purple Gacha"] is DBNull ? "" : (string)row["Purple Gacha"],
-                GachaY = row["Yellow Gacha"] is DBNull ? "" : (string)row["Yellow Gacha"],
-                GachaT = row["Teal Gacha"] is DBNull ? "" : (string)row["Teal Gacha"],
-            };
+            demon.AwakenC = row["Clear Awaken"] is DBNull ? "" : (string)row["Clear Awaken"];
+            demon.AwakenR = row["Red Awaken"] is DBNull ? "" : (string)row["Red Awaken"];
+            demon.AwakenP = row["Purple Awaken"] is DBNull ? "" : (string)row["Purple Awaken"];
+            demon.AwakenY = row["Yellow Awaken"] is DBNull ? "" : (string)row["Yellow Awaken"];
+            demon.AwakenT = row["Teal Awaken"] is DBNull ? "" : (string)row["Teal Awaken"];
+
+            demon.GachaR = row["Red Gacha"] is DBNull ? "" : (string)row["Red Gacha"];
+            demon.GachaP = row["Purple Gacha"] is DBNull ? "" : (string)row["Purple Gacha"];
+            demon.GachaY = row["Yellow Gacha"] is DBNull ? "" : (string)row["Yellow Gacha"];
+            demon.GachaT = row["Teal Gacha"] is DBNull ? "" : (string)row["Teal Gacha"];
+
+            return demon;
         }
 
         //Returns a value based on what its passed

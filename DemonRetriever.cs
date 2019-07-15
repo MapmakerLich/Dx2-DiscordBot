@@ -63,7 +63,7 @@ namespace Dx2_DiscordBot
                 var demon = Demons.Find(d => d.Name.ToLower() == items[1].Trim().Replace("*", "☆").ToLower()); //.Rows.Find(items[1].Trim().Replace("*", "☆"));
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
                 {
-                    if (demon.Name == "")
+                    if (demon.Name == null)
                         await chnl.SendMessageAsync("Could not find: " + items[1].Trim().Replace("*", "☆"), false);
                     else                    
                         await chnl.SendMessageAsync("", false, demon.WriteToDiscord());                    

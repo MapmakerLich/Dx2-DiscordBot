@@ -52,7 +52,7 @@ namespace Dx2_DiscordBot
                 
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
                 {
-                    if (skill.Name == "") 
+                    if (skill.Name == null) 
                         await chnl.SendMessageAsync("Could not find: " + items[1].Trim(), false);                    
                     else                                           
                         await chnl.SendMessageAsync("", false, skill.WriteToDiscord());                    

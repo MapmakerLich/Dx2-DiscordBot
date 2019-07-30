@@ -14,6 +14,10 @@ namespace Dx2_DiscordBot
 
         private static List<Skill> Skills;
 
+        private const int LEV_DISTANCE = 1;
+
+        private const int MAX_SIMILAR_SKILLS = 10;
+
         #endregion
 
         #region Constructor
@@ -48,16 +52,135 @@ namespace Dx2_DiscordBot
             if (message.Content.StartsWith(MainCommand))
             {
                 var items = message.Content.Split(MainCommand);
+
+                string searchedSkill = items[1].Trim().ToLower();
+
                 var skill = Skills.Find(s => s.Name.ToLower() == items[1].Trim().ToLower());
                 
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
                 {
-                    if (skill.Name == null) 
-                        await chnl.SendMessageAsync("Could not find: " + items[1].Trim(), false);                    
-                    else                                           
+                    /*
+                    if (skill.Name == null)
+                    {
+                        await chnl.SendMessageAsync("Could not find: " + items[1].Trim(), false);
+                    }
+                    else
                         await chnl.SendMessageAsync("", false, skill.WriteToDiscord());                    
+                    */
+                    //If exact demon not found
+                    if (skill.Name == null)
+                    {
+                        //Find all similar demons
+                        List<String> similarDemons = getSimilarSkills(searchedSkill, LEV_DISTANCE);
+
+                        //If no similar demons found
+                        if (similarDemons.Count == 0)
+                        {
+                            List<string> skillsStartingWith = new List<string>();
+
+                            skillsStartingWith = findSkillsStartingWith(searchedSkill);
+                            
+                            if (skillsStartingWith.Count == 1)
+                            {
+                                skill = Skills.Find(x => x.Name.ToLower() == skillsStartingWith[0].ToLower());
+                                if (skill.Name != null)
+                                    await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
+                            }
+                            else if(skillsStartingWith.Count > MAX_SIMILAR_SKILLS)
+                            {
+                                await chnl.SendMessageAsync("Could not find: " + searchedSkill + ". More than " + MAX_SIMILAR_SKILLS + " skills that start with this name exists, please refine your search.", false);
+                            }
+                            else if (skillsStartingWith.Count > 1)
+                            {
+                                string answerString = "Could not find: " + searchedSkill + ". Did you mean: ";
+
+                                foreach (string fuzzySkill in skillsStartingWith)
+                                {
+                                    answerString += fuzzySkill + ", ";
+                                }
+
+                                //Remove last space and comma
+                                answerString = answerString.Remove(answerString.Length - 2);
+
+                                answerString += "?";
+
+                                await chnl.SendMessageAsync(answerString, false);
+                            }
+                            else
+                            {
+                                await chnl.SendMessageAsync("Could not find: " + searchedSkill, false);
+                            }
+                        }
+                        //If exactly 1 demon found, return its Info
+                        else if (similarDemons.Count == 1)
+                        {
+                            //Find exactly this demon
+                            skill = Skills.Find(x => x.Name.ToLower() == similarDemons[0].ToLower());
+                            if (skill.Name != null)
+                                await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
+                        }
+                        //If similar demons found
+                        else
+                        {
+                            //Build answer string
+                            string answerString = "Could not find: " + searchedSkill + ". Did you mean: ";
+
+                            foreach (string fuzzyDemon in similarDemons)
+                            {
+                                answerString += fuzzyDemon + ", ";
+                            }
+
+                            //Remove last space and comma
+                            answerString = answerString.Remove(answerString.Length - 2);
+
+                            answerString += "?";
+
+                            await chnl.SendMessageAsync(answerString, false);
+                        }
+
+                    }
+                    else
+                        await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
                 }                   
             }
+        }
+
+        private List<string> findSkillsStartingWith(string searchedSkill)
+        {
+            List<string> skillSW = new List<string>();
+
+            foreach (Skill skill in Skills)
+            {
+                if (skill.Name.ToLower().StartsWith(searchedSkill.ToLower()))
+                    skillSW.Add(skill.Name);
+            }
+
+            return skillSW;
+        }
+
+        /// <summary>
+        /// Returns List of demons whose name have a Levinshtein Distance of LEV_DISTANCE
+        /// </summary>
+        /// <param name="searchedSkill">Name of the Demon that is being compared agianst</param>
+        /// <returns></returns>
+        private List<string> getSimilarSkills(string searchedSkill, int levDist)
+        {
+            List<string> simSkills = new List<string>();
+
+            foreach (Skill skill in Skills)
+            {
+                int levDistance = LevenshteinDistance.EditDistance(skill.Name.ToLower(), searchedSkill);
+
+                //Console.WriteLine("LevDistance between : " + demon.Name + " and " + searchedDemon + levDistance);
+
+                //If only off by levDist characters, add to List
+                if (levDistance == levDist)
+                {
+                    simSkills.Add(skill.Name);
+                }
+            }
+
+            return simSkills;
         }
 
         //Returns the commands for this Retriever

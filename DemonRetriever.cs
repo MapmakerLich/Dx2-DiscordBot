@@ -15,6 +15,8 @@ namespace Dx2_DiscordBot
 
         private static List<Demon> Demons;
 
+        private const int LEV_DISTANCE = 1;
+
         #endregion
 
         #region Constructor
@@ -51,24 +53,135 @@ namespace Dx2_DiscordBot
             {
                 var items = message.Content.Split(MainCommand);
 
+                //Save demon to be searched for
+                string searchedDemon = items[1].Trim().Replace("*", "☆").ToLower();
+
                 //var test = Demons.FindAll(d =>                 
                 //d.Name.Length >= 3 ?                 
                 //Calculators.EditDistance(d.Name.ToLower(), items[1].Trim().Replace("*", "☆").ToLower()) <= 2 :
                 //d.Name.ToLower() == items[1].Trim().Replace("*", "☆").ToLower());
 
-//                await Logger.LogAsync(items[1].Trim().Replace("*", "☆").ToLower() + " found " + test.Name);
+                //                await Logger.LogAsync(items[1].Trim().Replace("*", "☆").ToLower() + " found " + test.Name);
 
                 //Calculators.EditDistance(d.Name.ToLower(), items[1].Trim().Replace("*", "☆").ToLower())
 
-                var demon = Demons.Find(d => d.Name.ToLower() == items[1].Trim().Replace("*", "☆").ToLower()); //.Rows.Find(items[1].Trim().Replace("*", "☆"));
+                //Try to find demon
+                var demon = Demons.Find(d => d.Name.ToLower() == searchedDemon); //.Rows.Find(items[1].Trim().Replace("*", "☆"));
+
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
                 {
+                    //If exact demon not found
                     if (demon.Name == null)
-                        await chnl.SendMessageAsync("Could not find: " + items[1].Trim().Replace("*", "☆"), false);
+                    {
+                        //Find all similar demons
+                        List<String> similarDemons = getSimilarDemons(searchedDemon, LEV_DISTANCE);
+
+                        //If no similar demons found
+                        if (similarDemons.Count == 0)
+                        {
+                            List<string> demonsStartingWith = new List<string>();
+
+                            demonsStartingWith = findDemonsStartingWith(searchedDemon);
+
+                            
+
+                            if (demonsStartingWith.Count == 1)
+                            {
+                                demon = Demons.Find(x => x.Name.ToLower() == demonsStartingWith[0].ToLower());
+                                if (demon.Name != null)
+                                    await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
+                            }
+                            else if(demonsStartingWith.Count > 1)
+                            {
+                                string answerString = "Could not find: " + searchedDemon + ". Did you mean: ";
+
+                                foreach (string fuzzyDemon in demonsStartingWith)
+                                {
+                                    answerString += fuzzyDemon + ", ";
+                                }
+
+                                //Remove last space and comma
+                                answerString = answerString.Remove(answerString.Length - 2);
+
+                                answerString += "?";
+
+                                await chnl.SendMessageAsync(answerString, false);
+                            }
+                            else
+                            {
+                                await chnl.SendMessageAsync("Could not find: " + searchedDemon, false);
+                            }
+                        }
+                        //If exactly 1 demon found, return its Info
+                        else if (similarDemons.Count == 1)
+                        {
+                            //Find exactly this demon
+                            demon = Demons.Find(x => x.Name.ToLower() == similarDemons[0].ToLower());
+                            if (demon.Name != null)
+                                await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
+                        }
+                        //If similar demons found
+                        else
+                        {
+                            //Build answer string
+                            string answerString = "Could not find: " + searchedDemon + ". Did you mean: ";
+
+                            foreach (string fuzzyDemon in similarDemons)
+                            {
+                                answerString += fuzzyDemon + ", ";
+                            }
+
+                            //Remove last space and comma
+                            answerString = answerString.Remove(answerString.Length - 2);
+
+                            answerString += "?";
+
+                            await chnl.SendMessageAsync(answerString, false);
+                        }
+                            
+                    }
                     else                    
                         await chnl.SendMessageAsync("", false, demon.WriteToDiscord());                    
                 }
             }
+        }
+
+        private List<string> findDemonsStartingWith(string searchedDemon)
+        {
+            List<string> demonSW = new List<string>();
+
+            foreach(Demon demon in Demons)
+            {
+                if (demon.Name.ToLower().StartsWith(searchedDemon.ToLower()))
+                    demonSW.Add(demon.Name);
+            }
+
+            return demonSW;
+        }
+
+        /// <summary>
+        /// Returns List of demons whose name have a Levinshtein Distance of LEV_DISTANCE
+        /// </summary>
+        /// <param name="searchedDemon">Name of the Demon that is being compared agianst</param>
+        /// <returns></returns>
+        private List<string> getSimilarDemons(string searchedDemon, int levDist)
+        {
+            List<string> simDemons = new List<string>();
+
+            foreach(Demon demon in Demons)
+            {
+                int levDistance = LevenshteinDistance.EditDistance(demon.Name.ToLower(), searchedDemon);
+
+                //Console.WriteLine("LevDistance between : " + demon.Name + " and " + searchedDemon + levDistance);
+
+                //If only off by levDist characters, add to List
+                if (levDistance == levDist)
+                {
+                    simDemons.Add(demon.Name);
+                }
+            }
+            
+            return simDemons;
         }
 
         //Returns the commands for this Retriever

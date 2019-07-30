@@ -47,6 +47,7 @@ namespace Dx2_DiscordBot
                 _client.MessageReceived += MessageReceivedAsync;
 
                 //Environment.SetEnvironmentVariable("token", "EnterYourTokenHereAndThenUncommentAndRunTHENREMOVE", EnvironmentVariableTarget.User); 
+                
                 //Or simply create the environment variable called token with your token as the value
                 // Tokens should be considered secret data, and never hard-coded.
                 await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("token", EnvironmentVariableTarget.User));

@@ -82,9 +82,7 @@ namespace Dx2_DiscordBot
                             List<string> demonsStartingWith = new List<string>();
 
                             demonsStartingWith = findDemonsStartingWith(searchedDemon);
-
                             
-
                             if (demonsStartingWith.Count == 1)
                             {
                                 demon = Demons.Find(x => x.Name.ToLower() == demonsStartingWith[0].ToLower());
@@ -170,12 +168,22 @@ namespace Dx2_DiscordBot
 
             foreach(Demon demon in Demons)
             {
-                int levDistance = LevenshteinDistance.EditDistance(demon.Name.ToLower(), searchedDemon);
+                int levDistance = 999;
 
-                //Console.WriteLine("LevDistance between : " + demon.Name + " and " + searchedDemon + levDistance);
+                try
+                {
+                    levDistance = LevenshteinDistance.EditDistance(demon.Name.ToLower(), searchedDemon);
+                }
+                catch (ArgumentNullException e)
+                {
+                    Logger.LogAsync("ArgumentNullException in getSimilarDemons: " + e.Message);
+        
+                }
+
+                //Console.WriteLine("LevDistance between : " + demon.Name + " and " + searchedDemon + " : " + levDistance);
 
                 //If only off by levDist characters, add to List
-                if (levDistance == levDist)
+                if (levDistance <= levDist)
                 {
                     simDemons.Add(demon.Name);
                 }

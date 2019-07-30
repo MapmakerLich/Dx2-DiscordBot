@@ -169,12 +169,21 @@ namespace Dx2_DiscordBot
 
             foreach (Skill skill in Skills)
             {
-                int levDistance = LevenshteinDistance.EditDistance(skill.Name.ToLower(), searchedSkill);
+                int levDistance = 999;
 
+                try
+                {
+                    levDistance = LevenshteinDistance.EditDistance(skill.Name.ToLower(), searchedSkill);
+                }
+                catch (ArgumentNullException e)
+                {
+                    Logger.LogAsync("ArgumentNullException in getSimilarDemons: " + e.Message);
+
+                }
                 //Console.WriteLine("LevDistance between : " + demon.Name + " and " + searchedDemon + levDistance);
 
                 //If only off by levDist characters, add to List
-                if (levDistance == levDist)
+                if (levDistance <= levDist)
                 {
                     simSkills.Add(skill.Name);
                 }

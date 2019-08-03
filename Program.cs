@@ -46,8 +46,17 @@ namespace Dx2_DiscordBot
                 _client.Ready += ReadyAsync;
                 _client.MessageReceived += MessageReceivedAsync;
 
+
+                //Add all our Retrievers to our list
+                Retrievers.Add(new DemonRetriever(_client));
+                Retrievers.Add(new SkillRetriever(_client));
+                Retrievers.Add(new GKRetriever(_client));
+                Retrievers.Add(new AG2Retriever(_client));
+
+
+
                 //Environment.SetEnvironmentVariable("token", "EnterYourTokenHereAndThenUncommentAndRunTHENREMOVE", EnvironmentVariableTarget.User); 
-                
+
                 //Or simply create the environment variable called token with your token as the value
                 // Tokens should be considered secret data, and never hard-coded.
                 await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("token", EnvironmentVariableTarget.User));
@@ -70,16 +79,10 @@ namespace Dx2_DiscordBot
                 //Set what we are playing
                 await _client.SetGameAsync("!dx2help for Commands");
 
-                //Add all our Retrievers to our list
-                Retrievers.Add(new DemonRetriever(_client));
-                Retrievers.Add(new SkillRetriever(_client));
-                Retrievers.Add(new GKRetriever(_client));
-                Retrievers.Add(new AG2Retriever(_client));
-
                 //Allow each Retriever to initialize
                 foreach (var retriever in Retrievers)
                     await retriever.ReadyAsync();
-                
+
                 Program.IsRunning = true;
             }
         }

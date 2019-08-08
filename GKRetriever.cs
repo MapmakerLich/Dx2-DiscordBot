@@ -261,7 +261,7 @@ namespace Dx2_DiscordBot
         private List<Faction> GetFactions(string factionName = "")
         {
             var web = new HtmlWeb();
-            var htmlDoc = web.Load("https://ad2r-sim.mobile.sega.jp/socialsv/webview/GuildEventRankingView.do" + CleanFactionName(factionName));
+            var htmlDoc = web.Load("https://d2r-sim.mobile.sega.jp/socialsv/webview/GuildDevilDefeatEventRankingView.do" + CleanFactionName(factionName));
             return ReadRankings(htmlDoc);
         }
 
@@ -279,7 +279,7 @@ namespace Dx2_DiscordBot
             fixedFactionName = HttpUtility.UrlEncode(fixedFactionName);
 
             //Completes the URL
-            fixedFactionName = "?guild_name=" + fixedFactionName.Replace(" ", "+") + "&x=59&y=28&search_flg=1&lang=1";
+            fixedFactionName = "?lang=1&guild_name=" + fixedFactionName.Replace(" ", "+") + "&x=59&y=28&search_flg=1&lang=1";
 
             return fixedFactionName;
         }

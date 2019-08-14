@@ -22,6 +22,12 @@ namespace Dx2_DiscordBot
         //Our Timer Object
         public Timer Timer;
 
+        //Search Count
+        public static int searchCount = 0;
+
+        //Try again?
+        public static bool tryAgain = false;
+
         //Used for POST
         private static readonly HttpClient client = new HttpClient();
 
@@ -184,18 +190,14 @@ namespace Dx2_DiscordBot
                 var factions = GetFactions(factionName);
                 if (factions == null)
                     break;
-
+                
                 foreach (var faction in factions)
                     if (!tempFactions.Any(f => f.Name == faction.Name))
                         tempFactions.Add(faction);
 
                 //Jump to last faction
+                factionName = factionName.Normalize(System.Text.NormalizationForm.FormKC);
                 factionName = factions[factions.Count - 1].Name;
-                factionName = factionName.Replace("！", "!");
-                factionName = factionName.Replace("？", "?");
-                factionName = factionName.Replace("２", "2");
-                factionName = factionName.Replace("５", "5");
-                factionName = factionName.Replace("７", "7");
             }
 
             lock (Factions)
@@ -266,7 +268,7 @@ namespace Dx2_DiscordBot
         {
             var web = new HtmlWeb();
             var htmlDoc = web.Load("https://d2r-sim.mobile.sega.jp/socialsv/webview/GuildDevilDefeatEventRankingView.do" + CleanFactionName(factionName));
-            return ReadRankings(htmlDoc);
+            return ReadRankings(htmlDoc, factionName);
         }
 
         //Cleans a Faction Name
@@ -280,28 +282,26 @@ namespace Dx2_DiscordBot
             fixedFactionName = fixedFactionName.Trim();
 
             //Fix for factions with & symbol in there name to make them url safe
+            fixedFactionName = fixedFactionName.Normalize(System.Text.NormalizationForm.FormKC);
             fixedFactionName = HttpUtility.UrlEncode(fixedFactionName);
-            fixedFactionName = fixedFactionName.Replace("！", "!");
-            fixedFactionName = fixedFactionName.Replace("？", "?");            
-            fixedFactionName = fixedFactionName.Replace("２", "2");
-            fixedFactionName = fixedFactionName.Replace("５", "5");
-            fixedFactionName = fixedFactionName.Replace("７", "7");
 
             //Completes the URL
-            fixedFactionName = "?guild_name=" + fixedFactionName.Replace(" ", "+") + "&x=59&y=28&search_flg=1&lang=1&search_count=10";
+            fixedFactionName = "?guild_name=" + fixedFactionName.Replace(" ", "+") + "&x=59&y=28&search_flg=1&lang=1&search_count=3";
+            searchCount = searchCount + 1;
 
             return fixedFactionName;
         }
 
         //Processes Rankings we pass to this and return them in a list
-        private List<GhostFaction> ReadRankings(HtmlDocument htmlDoc)
+        private List<GhostFaction> ReadRankings(HtmlDocument htmlDoc, string factionName)
         {
             var factions = new List<GhostFaction>();
 
             var otherNodes = htmlDoc.DocumentNode.SelectNodes("//tr");
             var damageNodes = htmlDoc.DocumentNode.SelectNodes("//div[@id='Layer0']/p[@class='dmgStr']");
 
-            if (otherNodes == null || damageNodes == null) return null;
+            if (otherNodes == null || damageNodes == null)
+                return null;            
                         
             for (var i = 0; i < damageNodes.Count; i++)
             {

@@ -150,7 +150,7 @@ namespace Dx2_DiscordBot
 
             //Only send a message when we have data
             if (message == "")
-                message = "Couldn't find any factions. Is a GK Event started yet? If so contact @Alenael.1801 for assistance.";
+                message = "Couldn't find any factions. Is has Event started yet? If so contact @Alenael.1801 for assistance.";
 
             if (chnl != null)
             {
@@ -186,18 +186,23 @@ namespace Dx2_DiscordBot
                     break;
 
                 foreach (var faction in factions)
-                    if (!tempFactions.Contains(faction) && tempFactions.Count <= factionsToGet)
+                    if (!tempFactions.Any(f => f.Name == faction.Name))
                         tempFactions.Add(faction);
 
                 //Jump to last faction
                 factionName = factions[factions.Count - 1].Name;
+                factionName = factionName.Replace("！", "!");
+                factionName = factionName.Replace("？", "?");
+                factionName = factionName.Replace("２", "2");
+                factionName = factionName.Replace("５", "5");
+                factionName = factionName.Replace("７", "7");
             }
 
             lock (Factions)
                 Factions = tempFactions;
 
             //Print Results to log for use later           
-            var maxAmount = Convert.ToInt32(ConfigurationManager.AppSettings["topAmount"]);
+            var maxAmount = Math.Min(Convert.ToInt32(ConfigurationManager.AppSettings["topAmount"]), Factions.Count);
             var message = "";
             for (var i = 0; i < maxAmount; i++)
             {
@@ -228,8 +233,7 @@ namespace Dx2_DiscordBot
 
             if (message == "")
             {
-                message = "Could not locate Faction: " + factionName +
-                    ". Does your Discord Server name match your Faction name?";
+                message = "Could not locate Faction: " + factionName + ".";
             }
 
             if (chnl != null)
@@ -277,9 +281,14 @@ namespace Dx2_DiscordBot
 
             //Fix for factions with & symbol in there name to make them url safe
             fixedFactionName = HttpUtility.UrlEncode(fixedFactionName);
+            fixedFactionName = fixedFactionName.Replace("！", "!");
+            fixedFactionName = fixedFactionName.Replace("？", "?");            
+            fixedFactionName = fixedFactionName.Replace("２", "2");
+            fixedFactionName = fixedFactionName.Replace("５", "5");
+            fixedFactionName = fixedFactionName.Replace("７", "7");
 
             //Completes the URL
-            fixedFactionName = "?guild_name=" + fixedFactionName.Replace(" ", "+") + "&x=59&y=28&search_flg=1&lang=1&search_count=2";
+            fixedFactionName = "?guild_name=" + fixedFactionName.Replace(" ", "+") + "&x=59&y=28&search_flg=1&lang=1&search_count=10";
 
             return fixedFactionName;
         }
@@ -290,7 +299,7 @@ namespace Dx2_DiscordBot
             var factions = new List<GhostFaction>();
 
             var otherNodes = htmlDoc.DocumentNode.SelectNodes("//tr");
-            var damageNodes = htmlDoc.DocumentNode.SelectNodes("//p[@class='dmgStr']");
+            var damageNodes = htmlDoc.DocumentNode.SelectNodes("//div[@id='Layer0']/p[@class='dmgStr']");
 
             if (otherNodes == null || damageNodes == null) return null;
                         

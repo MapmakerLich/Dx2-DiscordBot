@@ -21,13 +21,7 @@ namespace Dx2_DiscordBot
         
         //Our Timer Object
         public Timer Timer;
-
-        //Search Count
-        public static int searchCount = 0;
-
-        //Try again?
-        public static bool tryAgain = false;
-
+        
         //Used for POST
         private static readonly HttpClient client = new HttpClient();
 
@@ -196,8 +190,8 @@ namespace Dx2_DiscordBot
                         tempFactions.Add(faction);
 
                 //Jump to last faction
-                factionName = factionName.Normalize(System.Text.NormalizationForm.FormKC);
                 factionName = factions[factions.Count - 1].Name;
+                factionName = factionName.Normalize(System.Text.NormalizationForm.FormKC);
             }
 
             lock (Factions)
@@ -287,7 +281,6 @@ namespace Dx2_DiscordBot
 
             //Completes the URL
             fixedFactionName = "?guild_name=" + fixedFactionName.Replace(" ", "+") + "&x=59&y=28&search_flg=1&lang=1&search_count=3";
-            searchCount = searchCount + 1;
 
             return fixedFactionName;
         }

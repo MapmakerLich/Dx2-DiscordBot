@@ -261,12 +261,19 @@ namespace Dx2_DiscordBot
         private List<GhostFaction> GetFactions(string factionName = "")
         {
             var web = new HtmlWeb();
-            var htmlDoc = web.Load("https://d2r-sim.mobile.sega.jp/socialsv/webview/GuildDevilDefeatEventRankingView.do" + CleanFactionName(factionName));
+            
+            var htmlDoc = web.Load("https://d2r-sim.mobile.sega.jp/socialsv/webview/GuildDevilDefeatEventRankingView.do" + CleanFactionName(factionName, "2"));
+            var ranking = ReadRankings(htmlDoc, factionName);
+
+            if (ranking != null)
+                return ranking;
+
+            htmlDoc = web.Load("https://d2r-sim.mobile.sega.jp/socialsv/webview/GuildDevilDefeatEventRankingView.do" + CleanFactionName(factionName, "3"));
             return ReadRankings(htmlDoc, factionName);
         }
 
         //Cleans a Faction Name
-        private static string CleanFactionName(string factionName)
+        private static string CleanFactionName(string factionName, string searchCount)
         {
             var fixedFactionName = factionName;
 
@@ -280,7 +287,7 @@ namespace Dx2_DiscordBot
             fixedFactionName = HttpUtility.UrlEncode(fixedFactionName);
 
             //Completes the URL
-            fixedFactionName = "?guild_name=" + fixedFactionName.Replace(" ", "+") + "&x=59&y=28&search_flg=1&lang=1&search_count=3";
+            fixedFactionName = "?guild_name=" + fixedFactionName.Replace(" ", "+") + "&x=59&y=28&search_flg=1&lang=1&search_count=" + searchCount;
 
             return fixedFactionName;
         }

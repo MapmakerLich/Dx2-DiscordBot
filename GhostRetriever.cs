@@ -310,6 +310,9 @@ namespace Dx2_DiscordBot
                 var owner = otherNodes[i + 1].ChildNodes[3].ChildNodes[3].InnerText;
                 var totalAmount = damageNodes[i].InnerText.Replace("Defeated:", "");
 
+                if (name.StartsWith("強さ<"))
+                    name = "強さ<<<キャラ愛";
+
                 factions.Add(
                     new GhostFaction()
                     {

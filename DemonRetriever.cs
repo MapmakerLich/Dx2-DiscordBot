@@ -424,11 +424,10 @@ namespace Dx2_DiscordBot
             if (Panel3 != "")
                 panelInfo3 = "Panel 3: " + Panel3 + " " + Panel3Stats + "\n\n";
 
-            eb.WithDescription(
-                "Skills:" + "\n" +
-                "1: " + GenerateWikiLink(Skill1) + "\n" +
-                "2: " + GenerateWikiLink(Skill2) + "\n" +
-                "3: " + GenerateWikiLink(Skill3) + "\n\n" +
+            eb.WithDescription(                
+                "Skill 1: " + GenerateWikiLink(Skill1) + "\n" +
+                "Skill 2: " + GenerateWikiLink(Skill2) + "\n" +
+                "Skill 3: " + GenerateWikiLink(Skill3) + "\n\n" +
                 "Clear: " + GenerateWikiLink(AwakenC) + "\n" +
                 "Red: " + GenerateWikiLink(AwakenR) + " | " + GenerateWikiLink(GachaR) + "\n" +
                 "Yellow: " + GenerateWikiLink(AwakenY) + " | " + GenerateWikiLink(GachaY) + "\n" +

@@ -388,7 +388,7 @@ namespace Dx2_DiscordBot
             var resist = "";
 
             if (Phys != "")
-                resist += "| Phys: " + Phys + " ";
+                resist += " | Phys: " + Phys + " ";
 
             if (Fire != "")
                 resist += " | Fire: " + Fire + " ";
@@ -426,9 +426,9 @@ namespace Dx2_DiscordBot
 
             eb.WithDescription(
                 "Skills:" + "\n" +
-                "Skill 1: " + GenerateWikiLink(Skill1) + "\n" +
-                "Skill 2: " + GenerateWikiLink(Skill2) + "\n" +
-                "Skill 3: " + GenerateWikiLink(Skill3) + "\n\n" +
+                "1: " + GenerateWikiLink(Skill1) + "\n" +
+                "2: " + GenerateWikiLink(Skill2) + "\n" +
+                "3: " + GenerateWikiLink(Skill3) + "\n\n" +
                 "Clear: " + GenerateWikiLink(AwakenC) + "\n" +
                 "Red: " + GenerateWikiLink(AwakenR) + " | " + GenerateWikiLink(GachaR) + "\n" +
                 "Yellow: " + GenerateWikiLink(AwakenY) + " | " + GenerateWikiLink(GachaY) + "\n" +

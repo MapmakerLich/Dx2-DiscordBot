@@ -283,8 +283,24 @@ namespace Dx2_DiscordBot
             {
                 transferrableFrom += "\n\n Transferrable From: ";
 
-                foreach(var s in skillInfos["Transferrable"])
-                    transferrableFrom += s.Name + ", ";
+                foreach (var s in skillInfos["Transferrable"])
+                {
+                    transferrableFrom += s.Name;
+
+                    if (Name == s.GachaR)
+                        transferrableFrom += " (R)";
+
+                    if (Name == s.GachaY)
+                        transferrableFrom += " (Y)";
+
+                    if (Name == s.GachaT)
+                        transferrableFrom += " (T)";
+
+                    if (Name == s.GachaP)
+                        transferrableFrom += " (P)";
+
+                    transferrableFrom += ", ";
+                }
 
                 transferrableFrom = transferrableFrom.Remove(transferrableFrom.Length-2, 2);
             }

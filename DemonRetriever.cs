@@ -445,6 +445,7 @@ namespace Dx2_DiscordBot
             eb.AddField("Ai", Ai, true);
 
             //Stats
+            eb.AddField("HP", HP, true);
             eb.AddField("Str", Str, true);
             eb.AddField("Mag", Mag, true);
             eb.AddField("Vit", Vit, true);

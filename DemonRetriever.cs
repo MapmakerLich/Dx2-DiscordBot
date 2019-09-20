@@ -388,7 +388,7 @@ namespace Dx2_DiscordBot
             var resist = "";
 
             //if (Phys != "")
-                resist += " | Phys: " + Phys + " ";
+                resist += "Phys: " + Phys + " ";
 
             //if (Fire != "")
                 resist += " | Fire: " + Fire + " ";
@@ -406,10 +406,10 @@ namespace Dx2_DiscordBot
                 resist += " | Light: " + Light + " ";
 
             //if (Dark != "")
-                resist += " | Dark: " + Dark + " ";
+                resist += " | Dark: " + Dark;
 
             //if (resist.Length > 0)
-                resist = resist.Remove(0, 3);
+                //resist = resist.Remove(0, 3);
 
             var panelInfo1 = "";
             var panelInfo2 = "";
@@ -447,6 +447,8 @@ namespace Dx2_DiscordBot
             if (Skill3 != "")
                 skill3 = GenerateWikiLink(Skill3) + "\n";
 
+            eb.WithDescription("[Lore..](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(Name) + "/Lore)");
+
             eb.AddField("Skills:",
                  GenerateWikiLink(Skill1) + "\n" +
                  GenerateWikiLink(Skill2) + "\n" +
@@ -473,22 +475,23 @@ namespace Dx2_DiscordBot
             eb.AddField("Mag", Mag + " (MAtk: " + MAtk + ")", true);
             eb.AddField("Vit", Vit + " (PDef: " + PDef + " MDef: " + MDef + ")", true);
             eb.AddField("Agi", Agi, true);
-            eb.AddField("Luck", Luck, true);                       
+            eb.AddField("Luck", Luck, true);    
+            
 
             eb.WithUrl(url);
             eb.WithThumbnailUrl(thumbnail);
             return eb.Build();
         }
 
-        private string GenerateWikiLink(string skill)
+        private string GenerateWikiLink(string demon)
         {
-            var newSkill = DemonRetriever.FixSkillsNamedAsDemons(skill);
+            var newDemon = DemonRetriever.FixSkillsNamedAsDemons(demon);
 
-            if (newSkill == "")
+            if (newDemon == "")
                 return "";
 
-            newSkill = "[" + newSkill + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(newSkill) + ")";
-            return newSkill;
+            newDemon = "[" + newDemon + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(newDemon) + ")";
+            return newDemon;
         }
     }
 

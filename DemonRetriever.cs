@@ -416,27 +416,50 @@ namespace Dx2_DiscordBot
             var panelInfo3 = "";
 
             if (Panel1 != "")
-                panelInfo1 = "Panel 1: " + Panel1 + " " + Panel1Stats + "\n";
+                panelInfo1 = "1: " + Panel1 + " " + Panel1Stats + "\n";
 
             if (Panel2 != "")
-                panelInfo2 = "Panel 2: " + Panel2 + " " + Panel2Stats + "\n";
+                panelInfo2 = "2: " + Panel2 + " " + Panel2Stats + "\n";
 
             if (Panel3 != "")
-                panelInfo3 = "Panel 3: " + Panel3 + " " + Panel3Stats + "\n\n";
+                panelInfo3 = "3: " + Panel3 + " " + Panel3Stats + "\n\n";
 
-            eb.WithDescription(                
-                "Skill 1: " + GenerateWikiLink(Skill1) + "\n" +
-                "Skill 2: " + GenerateWikiLink(Skill2) + "\n" +
-                "Skill 3: " + GenerateWikiLink(Skill3) + "\n\n" +
-                "Clear: " + GenerateWikiLink(AwakenC) + "\n" +
-                "Red: " + GenerateWikiLink(AwakenR) + " | " + GenerateWikiLink(GachaR) + "\n" +
-                "Yellow: " + GenerateWikiLink(AwakenY) + " | " + GenerateWikiLink(GachaY) + "\n" +
-                "Teal: " + GenerateWikiLink(AwakenT) + " | " + GenerateWikiLink(GachaT) + "\n" +
-                "Purple: " + GenerateWikiLink(AwakenP) + " | " + GenerateWikiLink(GachaP) + "\n\n" +
-                resist + "\n\n" +
-                panelInfo1 +
-                panelInfo2 +
-                panelInfo3);
+            var clear = "Clear: " + GenerateWikiLink(AwakenC) + "\n";
+            var red = "Red: " + GenerateWikiLink(AwakenR) + " | " + GenerateWikiLink(GachaR) + "\n";
+            var yellow = "Yellow: " + GenerateWikiLink(AwakenY) + " | " + GenerateWikiLink(GachaY) + "\n";
+            var teal = "Teal: " + GenerateWikiLink(AwakenT) + " | " + GenerateWikiLink(GachaT) + "\n";
+            var purple = "Purple: " + GenerateWikiLink(AwakenP) + " | " + GenerateWikiLink(GachaP) + "\n\n";
+            
+            if (red.EndsWith(" | \n"))
+                red = red.Replace(" | ", "");
+
+            if (yellow.EndsWith(" | \n"))
+                yellow = yellow.Replace(" | ", "");
+
+            if (teal.EndsWith(" | \n"))
+                teal = teal.Replace(" | ", "");
+
+            if (purple.EndsWith(" | \n\n"))
+                purple = purple.Replace(" | ", "");
+
+            var skill3 = "";
+
+            if (Skill3 != "")
+                skill3 = GenerateWikiLink(Skill3) + "\n";
+
+            eb.AddField("Skills:",
+                 GenerateWikiLink(Skill1) + "\n" +
+                 GenerateWikiLink(Skill2) + "\n" +
+                 skill3 + "\n" +
+                 clear +
+                 red +
+                 yellow +
+                 teal +
+                 purple, false);
+            eb.AddField("Resists", resist, false);
+
+            if (panelInfo1 != "")
+                eb.AddField("Panels", panelInfo1 + panelInfo2 + panelInfo3, true);
 
             //Other Info
             eb.AddField("Race", Race, true);
@@ -446,9 +469,9 @@ namespace Dx2_DiscordBot
 
             //Stats
             eb.AddField("HP", HP, true);
-            eb.AddField("Str", Str, true);
-            eb.AddField("Mag", Mag, true);
-            eb.AddField("Vit", Vit, true);
+            eb.AddField("Str", Str + " (PAtk: " + PAtk + ")", true);
+            eb.AddField("Mag", Mag + " (MAtk: " + MAtk + ")", true);
+            eb.AddField("Vit", Vit + " (PDef: " + PDef + " MDef: " + MDef + ")", true);
             eb.AddField("Agi", Agi, true);
             eb.AddField("Luck", Luck, true);                       
 
@@ -460,6 +483,10 @@ namespace Dx2_DiscordBot
         private string GenerateWikiLink(string skill)
         {
             var newSkill = DemonRetriever.FixSkillsNamedAsDemons(skill);
+
+            if (newSkill == "")
+                return "";
+
             newSkill = "[" + newSkill + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(newSkill) + ")";
             return newSkill;
         }

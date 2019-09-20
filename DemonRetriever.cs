@@ -308,7 +308,7 @@ namespace Dx2_DiscordBot
         private static string LoadResist(string value)
         {
             if (value == "" || value == null)
-                return "";
+                return "-";
 
             return value.First().ToString().ToUpper() + value.Substring(1);
         }
@@ -387,28 +387,28 @@ namespace Dx2_DiscordBot
 
             var resist = "";
 
-            if (Phys != "")
+            //if (Phys != "")
                 resist += " | Phys: " + Phys + " ";
 
-            if (Fire != "")
+            //if (Fire != "")
                 resist += " | Fire: " + Fire + " ";
 
-            if (Ice != "")
+            //if (Ice != "")
                 resist += " | Ice: " + Ice + " ";
 
-            if (Elec != "")
+            //if (Elec != "")
                 resist += " | Elec: " + Elec + " ";
 
-            if (Force != "")
+            //if (Force != "")
                 resist += " | Force: " + Force + " ";
 
-            if (Light != "")
+            //if (Light != "")
                 resist += " | Light: " + Light + " ";
 
-            if (Dark != "")
+            //if (Dark != "")
                 resist += " | Dark: " + Dark + " ";
 
-            if (resist.Length > 0)
+            //if (resist.Length > 0)
                 resist = resist.Remove(0, 3);
 
             var panelInfo1 = "";

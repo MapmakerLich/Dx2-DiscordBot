@@ -46,7 +46,6 @@ namespace Dx2_DiscordBot
                 _client.Ready += ReadyAsync;
                 _client.MessageReceived += MessageReceivedAsync;
 
-
                 //Add all our Retrievers to our list
                 Retrievers.Add(new DemonRetriever(_client));
                 Retrievers.Add(new SkillRetriever(_client));

@@ -424,11 +424,11 @@ namespace Dx2_DiscordBot
             if (Panel3 != "")
                 panelInfo3 = "3: " + Panel3 + " " + Panel3Stats + "\n\n";
 
-            var clear = "Clear: " + GenerateWikiLink(AwakenC) + "\n";
-            var red = "Red: " + GenerateWikiLink(AwakenR) + " | " + GenerateWikiLink(GachaR) + "\n";
-            var yellow = "Yellow: " + GenerateWikiLink(AwakenY) + " | " + GenerateWikiLink(GachaY) + "\n";
-            var teal = "Teal: " + GenerateWikiLink(AwakenT) + " | " + GenerateWikiLink(GachaT) + "\n";
-            var purple = "Purple: " + GenerateWikiLink(AwakenP) + " | " + GenerateWikiLink(GachaP) + "\n\n";
+            var clear = "C: " + GenerateWikiLink(AwakenC) + "\n";
+            var red = "R: " + GenerateWikiLink(AwakenR) + " | " + GenerateWikiLink(GachaR) + "\n";
+            var yellow = "Y: " + GenerateWikiLink(AwakenY) + " | " + GenerateWikiLink(GachaY) + "\n";
+            var teal = "T: " + GenerateWikiLink(AwakenT) + " | " + GenerateWikiLink(GachaT) + "\n";
+            var purple = "P: " + GenerateWikiLink(AwakenP) + " | " + GenerateWikiLink(GachaP) + "\n\n";
 
             if (AwakenC == "")
                 clear = "";
@@ -453,28 +453,19 @@ namespace Dx2_DiscordBot
             eb.AddField("Skills:",
                  GenerateWikiLink(Skill1) + "\n" +
                  GenerateWikiLink(Skill2) + "\n" +
-                 skill3 + //"\n" +
-                 clear +
-                 red +
-                 yellow +
-                 teal +
-                 purple, false);
+                 skill3, true);
+
+            eb.AddField("Awaken | Gacha:",
+                clear +
+                red +
+                yellow +
+                teal +
+                purple, true);
+
             eb.AddField("Resists", resist, false);
 
             if (panelInfo1 != "")
                 eb.AddField("Panels", panelInfo1 + panelInfo2 + panelInfo3, true);
-
-            //Other Info
-            eb.AddField("Info",
-                "Race: " + Race +
-                " | Grade: " + Grade +
-                " | Rarity: " + Rarity +
-                " | Ai: " + Ai +
-                " | [Lore..](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(Name) + "/Lore)");
-            //eb.AddField("Race", Race, true);
-            //eb.AddField("Grade", Grade, true);
-            //eb.AddField("Rarity", Rarity, true);
-            //eb.AddField("Ai", Ai, true);
 
             //Stats
             eb.AddField("HP", HP, true);
@@ -482,9 +473,15 @@ namespace Dx2_DiscordBot
             eb.AddField("Str", Str + " (PAtk: " + PAtk + ")", true);
             eb.AddField("Mag", Mag + " (MAtk: " + MAtk + ")", true);            
             eb.AddField("Agi", Agi, true);
-            eb.AddField("Luck", Luck, true);    
+            eb.AddField("Luck", Luck, true);
             
-
+            //Other Info
+            eb.WithFooter(
+                "Race: " + Race +
+                " | Grade: " + Grade +
+                " | Rarity: " + Rarity +
+                " | Ai: " + Ai);
+            eb.WithColor(Color.Red);
             eb.WithUrl(url);
             eb.WithThumbnailUrl(thumbnail);
             return eb.Build();

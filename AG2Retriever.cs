@@ -32,8 +32,8 @@ namespace Dx2_DiscordBot
         //Initialization
         public async override Task ReadyAsync()
         {
-            Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "map\\");
-            Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "boss\\");
+            await Task.Run(() => Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "map\\"));
+            await Task.Run(() => Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "boss\\"));            
         }
 
         //Recieve Messages here

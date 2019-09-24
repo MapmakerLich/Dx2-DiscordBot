@@ -13,7 +13,8 @@ namespace Dx2_DiscordBot
     {
         #region Properties
 
-        private static List<Demon> Demons;
+        public static List<Demon> Demons;
+        private static List<Rank> Ranks;
 
         private const int LEV_DISTANCE = 1;
 
@@ -39,8 +40,9 @@ namespace Dx2_DiscordBot
 
             var tempDemons = new List<Demon>();
             foreach(DataRow row in demonsDt.Rows)            
-                tempDemons.Add(LoadDemon(row));            
-            Demons = tempDemons;            
+                tempDemons.Add(LoadDemon(row));                        
+            Ranks = GetRanks(tempDemons);
+            Demons = tempDemons;
         }
 
         //Recieve Messages here
@@ -55,18 +57,9 @@ namespace Dx2_DiscordBot
 
                 //Save demon to be searched for
                 string searchedDemon = items[1].Trim().Replace("*", "☆").ToLower();
-
-                //var test = Demons.FindAll(d =>                 
-                //d.Name.Length >= 3 ?                 
-                //Calculators.EditDistance(d.Name.ToLower(), items[1].Trim().Replace("*", "☆").ToLower()) <= 2 :
-                //d.Name.ToLower() == items[1].Trim().Replace("*", "☆").ToLower());
-
-                //                await Logger.LogAsync(items[1].Trim().Replace("*", "☆").ToLower() + " found " + test.Name);
-
-                //Calculators.EditDistance(d.Name.ToLower(), items[1].Trim().Replace("*", "☆").ToLower())
-
+                
                 //Try to find demon
-                var demon = Demons.Find(d => d.Name.ToLower() == searchedDemon); //.Rows.Find(items[1].Trim().Replace("*", "☆"));
+                var demon = Demons.Find(d => d.Name.ToLower() == searchedDemon);
 
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
                 {
@@ -74,14 +67,14 @@ namespace Dx2_DiscordBot
                     if (demon.Name == null)
                     {
                         //Find all similar demons
-                        List<String> similarDemons = getSimilarDemons(searchedDemon, LEV_DISTANCE);
+                        List<String> similarDemons = GetSimilarDemons(searchedDemon, LEV_DISTANCE);
 
                         //If no similar demons found
                         if (similarDemons.Count == 0)
                         {
                             List<string> demonsStartingWith = new List<string>();
 
-                            demonsStartingWith = findDemonsStartingWith(searchedDemon);
+                            demonsStartingWith = FindDemonsStartingWith(searchedDemon);
                             
                             if (demonsStartingWith.Count == 1)
                             {
@@ -144,15 +137,53 @@ namespace Dx2_DiscordBot
             }
         }
 
-        private List<string> findDemonsStartingWith(string searchedDemon)
+        //Gets ranks for selected demons
+        public List<Rank> GetRanks(List<Demon> demons)
         {
+            var ranks = new List<Rank>();
+
+            foreach(var demon in demons)
+            {
+                var r = new Rank() { Name = demon.Name };
+
+                var sortedDemons = demons.OrderByDescending(c => c.Str).ToList();
+                r.Str = sortedDemons.FindIndex(a => a.Name == demon.Name) + 1;
+
+                sortedDemons = demons.OrderByDescending(c => c.Mag).ToList();
+                r.Mag = sortedDemons.FindIndex(a => a.Name == demon.Name) + 1;
+
+                sortedDemons = demons.OrderByDescending(c => c.Vit).ToList();
+                r.Vit = sortedDemons.FindIndex(a => a.Name == demon.Name) + 1;
+
+                sortedDemons = demons.OrderByDescending(c => c.Luck).ToList();
+                r.Luck = sortedDemons.FindIndex(a => a.Name == demon.Name) + 1;
+
+                sortedDemons = demons.OrderByDescending(c => c.HP).ToList();
+                r.HP = sortedDemons.FindIndex(a => a.Name == demon.Name) + 1;
+
+                sortedDemons = demons.OrderByDescending(c => c.Agi).ToList();
+                r.Agility = sortedDemons.FindIndex(a => a.Name == demon.Name) + 1;
+
+                ranks.Add(r);
+            }            
+
+            return ranks;
+        }
+
+        //Cheat to allow Linq in struct
+        public static Rank GetMyRank(string name)
+        {
+            return Ranks.Find(r => r.Name == name);
+        }
+
+        //Find demons starting with 
+        private List<string> FindDemonsStartingWith(string searchedDemon)
+        {                       
             List<string> demonSW = new List<string>();
 
-            foreach(Demon demon in Demons)
-            {
+            foreach(Demon demon in Demons)            
                 if (demon.Name.ToLower().StartsWith(searchedDemon.ToLower()))
-                    demonSW.Add(demon.Name);
-            }
+                    demonSW.Add(demon.Name);            
 
             return demonSW;
         }
@@ -162,11 +193,11 @@ namespace Dx2_DiscordBot
         /// </summary>
         /// <param name="searchedDemon">Name of the Demon that is being compared agianst</param>
         /// <returns></returns>
-        private List<string> getSimilarDemons(string searchedDemon, int levDist)
+        private List<string> GetSimilarDemons(string searchedDemon, int levDist)
         {
             List<string> simDemons = new List<string>();
 
-            foreach(Demon demon in Demons)
+            foreach (Demon demon in Demons)
             {
                 int levDistance = 999;
 
@@ -177,16 +208,11 @@ namespace Dx2_DiscordBot
                 catch (ArgumentNullException e)
                 {
                     Logger.LogAsync("ArgumentNullException in getSimilarDemons: " + e.Message);
-        
                 }
-
-                //Console.WriteLine("LevDistance between : " + demon.Name + " and " + searchedDemon + " : " + levDistance);
 
                 //If only off by levDist characters, add to List
-                if (levDistance <= levDist)
-                {
-                    simDemons.Add(demon.Name);
-                }
+                if (levDistance <= levDist)                
+                    simDemons.Add(demon.Name);                
             }
             
             return simDemons;
@@ -467,14 +493,16 @@ namespace Dx2_DiscordBot
             if (panelInfo1 != "")
                 eb.AddField("Panels", panelInfo1 + panelInfo2 + panelInfo3, true);
 
+            var demonCount = DemonRetriever.Demons.Count();
+
             //Stats
-            eb.AddField("HP", HP, true);
-            eb.AddField("Vit", Vit + " (PDef: " + PDef + " MDef: " + MDef + ")", true);
-            eb.AddField("Str", Str + " (PAtk: " + PAtk + ")", true);
-            eb.AddField("Mag", Mag + " (MAtk: " + MAtk + ")", true);            
-            eb.AddField("Agi", Agi, true);
-            eb.AddField("Luck", Luck, true);
-            
+            eb.AddField("HP", HP + " (" + DemonRetriever.GetMyRank(Name).HP + "/" + demonCount + ")  PDef: " + PDef, true);
+            eb.AddField("Vit", Vit + " (" + DemonRetriever.GetMyRank(Name).Vit + "/" + demonCount + ")  MDef: " + MDef, true);
+            eb.AddField("Str", Str + " (" + DemonRetriever.GetMyRank(Name).Str + "/" + demonCount + ")  PAtk: " + PAtk, true);
+            eb.AddField("Mag", Mag + " (" + DemonRetriever.GetMyRank(Name).Mag + "/" + demonCount + ")  MAtk: " + MAtk, true);            
+            eb.AddField("Agi", Agi + " (" + DemonRetriever.GetMyRank(Name).Agility + "/" + demonCount + ")", true);
+            eb.AddField("Luck", Luck + " (" + DemonRetriever.GetMyRank(Name).Luck + "/" + demonCount + ")", true);
+
             //Other Info
             eb.WithFooter(
                 "Race: " + Race +
@@ -497,6 +525,18 @@ namespace Dx2_DiscordBot
             newDemon = "[" + newDemon + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(newDemon) + ")";
             return newDemon;
         }
+    }
+
+    //Object to hold Rank Data
+    public struct Rank
+    {
+        public string Name;
+        public int Str;
+        public int Mag;
+        public int Vit;
+        public int Luck;
+        public int Agility;
+        public int HP;
     }
 
     #endregion

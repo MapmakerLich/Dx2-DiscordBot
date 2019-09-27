@@ -86,10 +86,12 @@ namespace Dx2_DiscordBot
 
                     var files = new StringBuilder();
 
+                    files.Append("```md\n");
                     foreach (var file in dirFiles)
                         files.Append(file.Name + "\n");
+                    files.Append("```");
 
-                    await chnl.SendMessageAsync(files.ToString());
+                    await chnl.SendMessageAsync(files.ToString() );
                 }
                 else if (message.Content.StartsWith(MainCommand + "maplist"))
                 {
@@ -98,8 +100,10 @@ namespace Dx2_DiscordBot
 
                     var files = new StringBuilder();
 
+                    files.Append("```md\n");
                     foreach (var file in dirFiles)
                         files.Append(file.Name + "\n");
+                    files.Append("```");
 
                     await chnl.SendMessageAsync(files.ToString());
                 }

@@ -79,27 +79,6 @@ namespace Dx2_DiscordBot
                         }
                     }
                 }
-                else if (message.Content.StartsWith(MainCommand + "map"))
-                {
-                    var items = message.Content.Split(MainCommand + "map");
-                    var file = GetFile("map\\", items[1].Trim());
-
-                    if (file != "" && File.Exists(file))
-                        await chnl.SendFileAsync(file, "AG2 Map - " + items[1].Trim());
-                    else
-                        await chnl.SendMessageAsync("Could not find map for that floor. Upload it yourself using !ag2mapupload# and adding an attachment.");
-                }
-
-                else if (message.Content.StartsWith(MainCommand + "boss"))
-                {
-                    var items = message.Content.Split(MainCommand + "boss");
-                    var file = GetFile("boss\\", items[1].Trim());
-
-                    if (file != "" && File.Exists(file))
-                        await chnl.SendFileAsync(file, "AG2 Boss - " + items[1].Trim());
-                    else
-                        await chnl.SendMessageAsync("Could not find boss for that floor. Upload it yourself using !ag2bossupload# and adding an attachment.");
-                }
                 else if (message.Content.StartsWith(MainCommand + "bosslist"))
                 {
                     var dir = AppDomain.CurrentDomain.BaseDirectory + "boss\\";
@@ -123,6 +102,27 @@ namespace Dx2_DiscordBot
                         files.Append(file.Name + "\n");
 
                     await chnl.SendMessageAsync(files.ToString());
+                }
+                else if (message.Content.StartsWith(MainCommand + "map"))
+                {
+                    var items = message.Content.Split(MainCommand + "map");
+                    var file = GetFile("map\\", items[1].Trim());
+
+                    if (file != "" && File.Exists(file))
+                        await chnl.SendFileAsync(file, "AG2 Map - " + items[1].Trim());
+                    else
+                        await chnl.SendMessageAsync("Could not find map for that floor. Upload it yourself using !ag2mapupload# and adding an attachment.");
+                }
+
+                else if (message.Content.StartsWith(MainCommand + "boss"))
+                {
+                    var items = message.Content.Split(MainCommand + "boss");
+                    var file = GetFile("boss\\", items[1].Trim());
+
+                    if (file != "" && File.Exists(file))
+                        await chnl.SendFileAsync(file, "AG2 Boss - " + items[1].Trim());
+                    else
+                        await chnl.SendMessageAsync("Could not find boss for that floor. Upload it yourself using !ag2bossupload# and adding an attachment.");
                 }
             }
         }

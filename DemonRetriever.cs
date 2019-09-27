@@ -506,7 +506,7 @@ namespace Dx2_DiscordBot
 
             var demonCount = DemonRetriever.Demons.Count();
 
-            eb.AddField("Stats", "HP: " + HP +
+            eb.AddField("Stats", "HP: " + HP + " | " +
                 "Vit: " + Vit + " (" + DemonRetriever.GetMyRank(Name).Vit + "/" + demonCount + ")\n" +
                 "Str: " + Str + " (" + DemonRetriever.GetMyRank(Name).Str + "/" + demonCount + ") | " +
                 "Mag: " + Mag + " (" + DemonRetriever.GetMyRank(Name).Mag + "/" + demonCount + ")\n" +

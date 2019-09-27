@@ -100,6 +100,30 @@ namespace Dx2_DiscordBot
                     else
                         await chnl.SendMessageAsync("Could not find boss for that floor. Upload it yourself using !ag2bossupload# and adding an attachment.");
                 }
+                else if (message.Content.StartsWith(MainCommand + "bosslist"))
+                {
+                    var dir = AppDomain.CurrentDomain.BaseDirectory + "boss\\";
+                    var dirFiles = new DirectoryInfo(dir).GetFiles();
+
+                    var files = new StringBuilder();
+
+                    foreach (var file in dirFiles)
+                        files.Append(file.Name + "\n");
+
+                    await chnl.SendMessageAsync(files.ToString());
+                }
+                else if (message.Content.StartsWith(MainCommand + "maplist"))
+                {
+                    var dir = AppDomain.CurrentDomain.BaseDirectory + "map\\";
+                    var dirFiles = new DirectoryInfo(dir).GetFiles();
+
+                    var files = new StringBuilder();
+
+                    foreach (var file in dirFiles)
+                        files.Append(file.Name + "\n");
+
+                    await chnl.SendMessageAsync(files.ToString());
+                }
             }
         }
 
@@ -110,7 +134,9 @@ namespace Dx2_DiscordBot
             "\n* " + MainCommand + "map# - Returns an image of the map for the floor requested." +
             "\n* " + MainCommand + "boss# - Returns an image of the bosses stats for the floor requested." +
             "\n* " + MainCommand + "bossupload# - Allows you to upload an image for a Bosses stats in AG2. Uploading again will overwrite by floor." +
-            "\n* " + MainCommand + "mapupload# - Allows you to upload an image for a Map in AG2. Uploading again will overwrite by floor.";
+            "\n* " + MainCommand + "mapupload# - Allows you to upload an image for a Map in AG2. Uploading again will overwrite by floor." +
+            "\n* " + MainCommand + "maplist - Returns a list of all maps." +
+            "\n* " + MainCommand + "bosslist - Returns a list of all bosses.";
         }
 
         #endregion

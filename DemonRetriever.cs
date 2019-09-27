@@ -495,13 +495,21 @@ namespace Dx2_DiscordBot
 
             var demonCount = DemonRetriever.Demons.Count();
 
+            eb.AddField("Stats", "HP: " + HP + " (" + DemonRetriever.GetMyRank(Name).HP + "/" + demonCount + ") | " +
+                "Vit: " + Vit + " (" + DemonRetriever.GetMyRank(Name).Vit + "/" + demonCount + ")\n" +
+                "Str: " + Str + " (" + DemonRetriever.GetMyRank(Name).Str + "/" + demonCount + ") | " +
+                "Mag: " + Mag + " (" + DemonRetriever.GetMyRank(Name).Mag + "/" + demonCount + ")\n" +
+                "Agi: " + Agi + " (" + DemonRetriever.GetMyRank(Name).Agility + "/" + demonCount + ") | " +
+                "Luck: " + Luck + " (" + DemonRetriever.GetMyRank(Name).Luck + "/" + demonCount + ")"
+                , true);
+
             //Stats
-            eb.AddField("HP", HP + " (" + DemonRetriever.GetMyRank(Name).HP + "/" + demonCount + ")  PDef: " + PDef, true);
-            eb.AddField("Vit", Vit + " (" + DemonRetriever.GetMyRank(Name).Vit + "/" + demonCount + ")  MDef: " + MDef, true);
-            eb.AddField("Str", Str + " (" + DemonRetriever.GetMyRank(Name).Str + "/" + demonCount + ")  PAtk: " + PAtk, true);
-            eb.AddField("Mag", Mag + " (" + DemonRetriever.GetMyRank(Name).Mag + "/" + demonCount + ")  MAtk: " + MAtk, true);            
-            eb.AddField("Agi", Agi + " (" + DemonRetriever.GetMyRank(Name).Agility + "/" + demonCount + ")", true);
-            eb.AddField("Luck", Luck + " (" + DemonRetriever.GetMyRank(Name).Luck + "/" + demonCount + ")", true);
+            //eb.AddField("HP", HP + " (" + DemonRetriever.GetMyRank(Name).HP + "/" + demonCount + ")  PDef: " + PDef, true);
+            //eb.AddField("Vit", Vit + " (" + DemonRetriever.GetMyRank(Name).Vit + "/" + demonCount + ")  MDef: " + MDef, true);
+            //eb.AddField("Str", Str + " (" + DemonRetriever.GetMyRank(Name).Str + "/" + demonCount + ")  PAtk: " + PAtk, true);
+            //eb.AddField("Mag", Mag + " (" + DemonRetriever.GetMyRank(Name).Mag + "/" + demonCount + ")  MAtk: " + MAtk, true);            
+            //eb.AddField("Agi", Agi + " (" + DemonRetriever.GetMyRank(Name).Agility + "/" + demonCount + ")", true);
+            //eb.AddField("Luck", Luck + " (" + DemonRetriever.GetMyRank(Name).Luck + "/" + demonCount + ")", true);
 
             //Other Info
             eb.WithFooter(

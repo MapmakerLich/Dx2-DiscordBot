@@ -36,7 +36,6 @@ namespace Dx2_DiscordBot
         public async override Task ReadyAsync()
         {
             var demonsDt = await GetCSV("https://raw.githubusercontent.com/Alenael/Dx2DB/master/csv/SMT Dx2 Database - Demons.csv");
-            //demons.PrimaryKey = new DataColumn[] { Demons.Columns["Name"] };
 
             var tempDemons = new List<Demon>();
             foreach(DataRow row in demonsDt.Rows)            
@@ -462,14 +461,26 @@ namespace Dx2_DiscordBot
             if (red.EndsWith(" | \n"))
                 red = red.Replace(" | ", "");
 
+            if (AwakenR == "")
+                red = "";
+
             if (yellow.EndsWith(" | \n"))
                 yellow = yellow.Replace(" | ", "");
+
+            if (AwakenY == "")
+                yellow = "";
 
             if (teal.EndsWith(" | \n"))
                 teal = teal.Replace(" | ", "");
 
+            if (AwakenT == "")
+                teal = "";
+
             if (purple.EndsWith(" | \n\n"))
                 purple = purple.Replace(" | ", "");
+
+            if (AwakenP == "")
+                purple = "";
 
             var skill3 = "";
 
@@ -495,21 +506,13 @@ namespace Dx2_DiscordBot
 
             var demonCount = DemonRetriever.Demons.Count();
 
-            eb.AddField("Stats", "HP: " + HP + " (" + DemonRetriever.GetMyRank(Name).HP + "/" + demonCount + ") | " +
+            eb.AddField("Stats", "HP: " + HP +
                 "Vit: " + Vit + " (" + DemonRetriever.GetMyRank(Name).Vit + "/" + demonCount + ")\n" +
                 "Str: " + Str + " (" + DemonRetriever.GetMyRank(Name).Str + "/" + demonCount + ") | " +
                 "Mag: " + Mag + " (" + DemonRetriever.GetMyRank(Name).Mag + "/" + demonCount + ")\n" +
                 "Agi: " + Agi + " (" + DemonRetriever.GetMyRank(Name).Agility + "/" + demonCount + ") | " +
                 "Luck: " + Luck + " (" + DemonRetriever.GetMyRank(Name).Luck + "/" + demonCount + ")"
                 , true);
-
-            //Stats
-            //eb.AddField("HP", HP + " (" + DemonRetriever.GetMyRank(Name).HP + "/" + demonCount + ")  PDef: " + PDef, true);
-            //eb.AddField("Vit", Vit + " (" + DemonRetriever.GetMyRank(Name).Vit + "/" + demonCount + ")  MDef: " + MDef, true);
-            //eb.AddField("Str", Str + " (" + DemonRetriever.GetMyRank(Name).Str + "/" + demonCount + ")  PAtk: " + PAtk, true);
-            //eb.AddField("Mag", Mag + " (" + DemonRetriever.GetMyRank(Name).Mag + "/" + demonCount + ")  MAtk: " + MAtk, true);            
-            //eb.AddField("Agi", Agi + " (" + DemonRetriever.GetMyRank(Name).Agility + "/" + demonCount + ")", true);
-            //eb.AddField("Luck", Luck + " (" + DemonRetriever.GetMyRank(Name).Luck + "/" + demonCount + ")", true);
 
             //Other Info
             eb.WithFooter(

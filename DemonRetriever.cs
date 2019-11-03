@@ -405,7 +405,7 @@ namespace Dx2_DiscordBot
         public Embed WriteToDiscord()
         {
             var url = "https://dx2wiki.com/index.php/" + Uri.EscapeDataString(Name);
-            var thumbnail = "https://raw.githubusercontent.com/Alenael/Dx2DB/master/Images/Demons" + Uri.EscapeDataString(Name.Replace("☆", "")) + ".jpg";
+            var thumbnail = "https://raw.githubusercontent.com/Alenael/Dx2DB/master/Images/Demons/" + Uri.EscapeDataString(Name.Replace("☆", "")) + ".jpg";
             
             var eb = new EmbedBuilder();
             eb.WithTitle(Name);

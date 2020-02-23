@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Dx2_DiscordBot
@@ -326,6 +327,11 @@ namespace Dx2_DiscordBot
             demon.Panel2Stats = row["Panel 2 Stats"] is DBNull ? "" : (string)row["Panel 2 Stats"];
             demon.Panel3Stats = row["Panel 3 Stats"] is DBNull ? "" : (string)row["Panel 3 Stats"];
 
+            demon.Gacha = row["Gacha"] is DBNull ? false : (string)row["Gacha"] == "1";
+            demon.Event = row["Event"] is DBNull ? false : (string)row["Event"] == "1";
+            demon.MultiFusion = row["Multi-Fusion"] is DBNull ? false : (string)row["Multi-Fusion"] == "1";
+            demon.BannerRequired = row["Banner Required"] is DBNull ? false : (string)row["Banner Required"] == "1";
+
             return demon;
         }
 
@@ -401,6 +407,11 @@ namespace Dx2_DiscordBot
         public string Panel1Stats;
         public string Panel2Stats;
         public string Panel3Stats;
+
+        public bool Gacha;
+        public bool Event;
+        public bool MultiFusion;
+        public bool BannerRequired;
 
         public Embed WriteToDiscord()
         {
@@ -506,12 +517,20 @@ namespace Dx2_DiscordBot
 
             var demonCount = DemonRetriever.Demons.Count();
 
+            var fusionUrls = "";
+
+            fusionUrls += "[Used In Fusions](" + GetFusionUrl("fusion") + ")\n";
+
+            if (MultiFusion || !Gacha)
+                fusionUrls += "[How To Fuse](" + GetFusionUrl("fission") + ")";
+
             eb.AddField("Stats", "HP: " + HP + " | " +
                 "Vit: " + Vit + " (" + DemonRetriever.GetMyRank(Name).Vit + "/" + demonCount + ")\n" +
                 "Str: " + Str + " (" + DemonRetriever.GetMyRank(Name).Str + "/" + demonCount + ") | " +
                 "Mag: " + Mag + " (" + DemonRetriever.GetMyRank(Name).Mag + "/" + demonCount + ")\n" +
                 "Agi: " + Agi + " (" + DemonRetriever.GetMyRank(Name).Agility + "/" + demonCount + ") | " +
-                "Luck: " + Luck + " (" + DemonRetriever.GetMyRank(Name).Luck + "/" + demonCount + ")"
+                "Luck: " + Luck + " (" + DemonRetriever.GetMyRank(Name).Luck + "/" + demonCount + ")\n\n" +
+                fusionUrls
                 , true);
 
             //Other Info
@@ -524,6 +543,16 @@ namespace Dx2_DiscordBot
             eb.WithUrl(url);
             eb.WithThumbnailUrl(thumbnail);
             return eb.Build();
+        }
+        
+        private string GetFusionUrl(string type)
+        {
+            var newName = Name;
+
+            Regex regex = new Regex(@"\b A\b");
+            newName = regex.Replace(newName, " [Dimensional]");
+
+            return "https://oceanxdds.github.io/dx2_fusion/?route="+ type + "&demon=" + Uri.EscapeUriString(newName) + "#en";
         }
 
         private string GenerateWikiLink(string demon)

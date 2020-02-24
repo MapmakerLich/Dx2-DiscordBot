@@ -183,17 +183,17 @@ namespace Dx2_DiscordBot
         {
             var newType = "";
 
-            switch (type)
+            switch (type.ToLower())
             {
-                case "Null":
+                case "null":
                     return "Nu";
-                case "Resist":
+                case "resist":
                     return "Rs";
-                case "Drain":
+                case "drain":                
                     return "Ab";
-                case "Repel":
+                case "repel":
                     return "Rp";
-                case "Weak":
+                case "weak":
                     return "Wk";
             }
 

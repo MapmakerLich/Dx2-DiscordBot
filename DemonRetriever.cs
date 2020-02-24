@@ -269,7 +269,7 @@ namespace Dx2_DiscordBot
         }
 
         //Creates a demon object from a data grid view row
-        private static Demon LoadDemon(DataRow row)
+        public static Demon LoadDemon(DataRow row)
         {
             var demonVersions = "";
             var name = row["Name"] is DBNull ? "" : (string)row["Name"];
@@ -460,11 +460,11 @@ namespace Dx2_DiscordBot
             if (Panel3 != "")
                 panelInfo3 = "3: " + Panel3 + " " + Panel3Stats + "\n\n";
 
-            var clear = "C: " + GenerateWikiLink(AwakenC) + "\n";
-            var red = "R: " + GenerateWikiLink(AwakenR) + " | " + GenerateWikiLink(GachaR) + "\n";
-            var yellow = "Y: " + GenerateWikiLink(AwakenY) + " | " + GenerateWikiLink(GachaY) + "\n";
-            var teal = "T: " + GenerateWikiLink(AwakenT) + " | " + GenerateWikiLink(GachaT) + "\n";
-            var purple = "P: " + GenerateWikiLink(AwakenP) + " | " + GenerateWikiLink(GachaP) + "\n\n";
+            var clear = "C: " + GenerateSkillWikiLink(AwakenC) + "\n";
+            var red = "R: " + GenerateSkillWikiLink(AwakenR) + " | " + GenerateSkillWikiLink(GachaR) + "\n";
+            var yellow = "Y: " + GenerateSkillWikiLink(AwakenY) + " | " + GenerateSkillWikiLink(GachaY) + "\n";
+            var teal = "T: " + GenerateSkillWikiLink(AwakenT) + " | " + GenerateSkillWikiLink(GachaT) + "\n";
+            var purple = "P: " + GenerateSkillWikiLink(AwakenP) + " | " + GenerateSkillWikiLink(GachaP) + "\n\n";
 
             if (AwakenC == "")
                 clear = "";
@@ -496,11 +496,11 @@ namespace Dx2_DiscordBot
             var skill3 = "";
 
             if (Skill3 != "")
-                skill3 = GenerateWikiLink(Skill3) + "\n";
+                skill3 = GenerateSkillWikiLink(Skill3) + "\n";
             
             eb.AddField("Skills:",
-                 GenerateWikiLink(Skill1) + "\n" +
-                 GenerateWikiLink(Skill2) + "\n" +
+                 GenerateSkillWikiLink(Skill1) + "\n" +
+                 GenerateSkillWikiLink(Skill2) + "\n" +
                  skill3, true);
 
             eb.AddField("Awaken | Gacha:",
@@ -555,15 +555,20 @@ namespace Dx2_DiscordBot
             return "https://oceanxdds.github.io/dx2_fusion/?route="+ type + "&demon=" + Uri.EscapeUriString(newName) + "#en";
         }
 
-        private string GenerateWikiLink(string demon)
+        private string GenerateSkillWikiLink(string skill)
         {
-            var newDemon = DemonRetriever.FixSkillsNamedAsDemons(demon);
+            var newDemon = DemonRetriever.FixSkillsNamedAsDemons(skill);
 
             if (newDemon == "")
                 return "";
 
             newDemon = "[" + newDemon + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(newDemon) + ")";
             return newDemon;
+        }
+
+        public string GenerateDemonWikiLink()
+        {
+            return "[" + Name + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(Name) + ")";             
         }
     }
 

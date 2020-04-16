@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -95,17 +96,32 @@ namespace Dx2_DiscordBot
             if (message.Author.Id == _client.CurrentUser.Id)
                 return;
 
-            //Grab some data about this message specifically
-            var serverName = ((SocketGuildChannel)message.Channel).Guild.Name;
-            var channelId = message.Channel.Id;
+            if (message.Channel is IPrivateChannel)
+            {
+                var channelId = message.Channel.Id;
 
-            //Allow each Retriever to check for messages
-            foreach (var retriever in Retrievers)
-                await retriever.MessageReceivedAsync(message, serverName, channelId);                                  
+                //Allow each Retriever to check for messages
+                foreach (var retriever in Retrievers)
+                    await retriever.MessageReceivedAsync(message, "DM", channelId);
 
-            //Returns list of commands
-            if (message.Content == "!dx2help")            
-                await SendCommandsAsync(message.Channel.Id);
+                //Returns list of commands
+                if (message.Content == "!dx2help")
+                    await SendCommandsAsync(message.Channel.Id);
+            }
+            else if (message.Channel is ISocketMessageChannel)
+            {
+                //Grab some data about this message specifically
+                var serverName = ((SocketGuildChannel)message.Channel).Guild.Name;
+                var channelId = message.Channel.Id;
+
+                //Allow each Retriever to check for messages
+                foreach (var retriever in Retrievers)
+                    await retriever.MessageReceivedAsync(message, serverName, channelId);
+
+                //Returns list of commands
+                if (message.Content == "!dx2help")
+                    await SendCommandsAsync(message.Channel.Id);
+            }
         }
 
         //Sends a list of commands to the server

@@ -68,7 +68,7 @@ namespace Dx2_DiscordBot
             timer.Enabled = false;
             timer = null;
 
-            await Logger.LogAsync("SEND THE ALERT! This is a test.");
+            await Logger.LogAsync("SEND THE ALERT!");
 
             foreach (var g in _client.Guilds)
             {
@@ -94,7 +94,7 @@ namespace Dx2_DiscordBot
                         }
                     }
 
-                    var role = g.Roles.First(r => r.Name == "FullMoonCrew");
+                    var role = g.Roles.FirstOrDefault(r => r.Name == "FullMoonCrew");
                     var eb = new EmbedBuilder();
                     eb.WithDescription("Full Moon has started in Aura Gate!");
 
@@ -201,7 +201,7 @@ namespace Dx2_DiscordBot
 
             var timeSpan = moonTime.Subtract(now);            
 
-            return moonTime.ToString("H:mm tt UTC") + string.Format(" {0} Hour(s) and {1} Minute(s) Away", timeSpan.Hours, timeSpan.Minutes);
+            return moonTime.ToString("h:mm tt UTC") + string.Format(" {0} Hour(s) and {1} Minute(s) Away", timeSpan.Hours, timeSpan.Minutes);
         }
 
         //Gets seconds since beginning of time

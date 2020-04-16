@@ -59,14 +59,6 @@ namespace Dx2_DiscordBot
                 
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
                 {
-                    /*
-                    if (skill.Name == null)
-                    {
-                        await chnl.SendMessageAsync("Could not find: " + items[1].Trim(), false);
-                    }
-                    else
-                        await chnl.SendMessageAsync("", false, skill.WriteToDiscord());                    
-                    */
                     //If exact demon not found
                     if (skill.Name == null)
                     {

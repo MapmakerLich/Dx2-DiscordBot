@@ -94,7 +94,10 @@ namespace Dx2_DiscordBot
                         }
                     }
 
-                    var description = "Full Moon has started in Aura Gate!";
+                    var role = g.Roles.First(r => r.Name == "FullMoonCrew");
+                    var description = "";
+                    
+                    description = "Full Moon has started in Aura Gate!";
 
                     var eb = new EmbedBuilder();
                     eb.WithDescription(description);
@@ -107,6 +110,8 @@ namespace Dx2_DiscordBot
                     else if (botSpam && botSpamChnlId != 0)
                     {
                         var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
+                        if (role != null)
+                            await chnl.SendMessageAsync(role.Mention);
                         await chnl.SendMessageAsync("", false, eb.Build());
                     }
                 }
@@ -129,8 +134,10 @@ namespace Dx2_DiscordBot
                 if (message.Content.StartsWith(MainCommand + "help"))
                 {
                     await chnl.SendMessageAsync(
-                        "Create a channel called bot-spam or moon-phase that the bot has permission to write to. " +
-                        "moon-phase will take priority over bot-spam as the bots output if you have both. Bot will automatically write to this channel as needed.", false);
+                        "1.) Create a channel called bot-spam or moon-phase that the bot has permission to write to.\n" +
+                        "2.) moon-phase will take priority over bot-spam as the bots output if you have both.\n" +
+                        "3.) Bot will automatically write to this channel every time a full moon begins.\n" +
+                        "The bot can also mention the role named 'FullMoonCrew' if you create and assign it for your users.", false);
                 }
                 else if (message.Content.StartsWith(MainCommand + "next"))
                 {
@@ -151,8 +158,7 @@ namespace Dx2_DiscordBot
         public override string GetCommands()
         {
             return "\n\nMoon Phases:" +
-          //  "\n* " + MainCommand + "help: Prints instructions for setting up Moon Phases on your Discord Server." +
-            //"\n* " + MainCommand + "current: Prints the current moon phase." +
+            "\n* " + MainCommand + "help: Prints instructions for setting up Moon Phases on your Discord Server." +
             "\n* " + MainCommand + "next: Prints the next 3 upcoming full moon phase.";
         }
 

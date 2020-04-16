@@ -42,7 +42,7 @@ namespace Dx2_DiscordBot
             {
                 var upcomingMoon = GetUpcomingMoon();
 
-                var moonTime = new DateTime(1970, 1, 1).AddSeconds(upcomingMoon);
+                var moonTime = new DateTime().AddSeconds(upcomingMoon);
                 var now = DateTime.Now.ToUniversalTime();
 
                 var timeSpan = moonTime.Subtract(now);
@@ -164,39 +164,39 @@ namespace Dx2_DiscordBot
 
         #region Methods
 
-        private const int start_ref = 1544848380;
+        private double start_ref = new TimeSpan(new DateTime(2020, 4, 16, 8, 50, 0, DateTimeKind.Utc).Ticks).TotalSeconds;
         private const int moon_duration = 7 * 60;
         private const int full_moon_duration = 10 * 60;
         public const int next_moons_count = 20;
 
-        public int GetUpcomingMoon()
+        public long GetUpcomingMoon()
         {
-            var nextFullMoon = start_ref;
             var currentTime = GetCurrentTime();
+            var nextFullMoon = Math.Floor(start_ref);
 
             while (true)
-            {
+            {                
                 nextFullMoon = GetNextFullMoon(nextFullMoon);
 
                 if (nextFullMoon < currentTime)
                     continue;
                 else
-                    break;                    
+                    break;
             }
 
-            return nextFullMoon;
+            return (long) nextFullMoon;
         }
 
         //Gets next full moon by adding seconds to time provided
-        public int GetNextFullMoon(int currentTime)
+        public long GetNextFullMoon(double currentTime)
         {
-            return currentTime + full_moon_duration * 2 + moon_duration * 14;
+            return (long) currentTime + (full_moon_duration * 2) + moon_duration * 14;
         }
 
         //Converts seconds to time with seconds beginning at 1/1/1970
-        public string FormatNextTime(int seconds)
+        public string FormatNextTime(long seconds)
         {            
-            var moonTime = new DateTime(1970, 1, 1).AddSeconds(seconds);
+            var moonTime = new DateTime().AddSeconds(seconds);
             var now = DateTime.Now.ToUniversalTime();
 
             var timeSpan = moonTime.Subtract(now);            
@@ -204,11 +204,11 @@ namespace Dx2_DiscordBot
             return moonTime.ToString("H:mm tt UTC") + string.Format(" {0} Hour(s) and {1} Minute(s) Away", timeSpan.Hours, timeSpan.Minutes);
         }
 
-        //Gets seconds since 1/1/1970
+        //Gets seconds since beginning of time
         public double GetCurrentTime()
         {
-            var time = (DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1));
-            return Math.Floor(time.TotalMilliseconds / 1000);
+            var time = new TimeSpan(DateTime.Now.ToUniversalTime().Ticks);
+            return Math.Floor(time.TotalSeconds);
         }
         
         #endregion

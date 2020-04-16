@@ -59,6 +59,9 @@ namespace Dx2_DiscordBot
 
         private void OnAlert(object sender, System.Timers.ElapsedEventArgs e)
         {
+            timer.Enabled = false;
+            timer = null;
+
             Logger.LogAsync("SEND THE ALERT! This is a test.");
 
             foreach(var g in _client.Guilds)
@@ -103,8 +106,9 @@ namespace Dx2_DiscordBot
                 }
             }
 
-            timer = null;
-            SetupTimer();
+            timer = new System.Timers.Timer(7080000);
+            timer.Elapsed += OnAlert;
+            timer.Enabled = true;
         }
 
         //Recieve Messages here

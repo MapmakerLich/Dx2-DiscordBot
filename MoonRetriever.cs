@@ -33,7 +33,6 @@ namespace Dx2_DiscordBot
         //Initialization
         public async override Task ReadyAsync()
         {
-            //OnAlert(null, null);
             SetupTimer();
         }
 
@@ -46,9 +45,10 @@ namespace Dx2_DiscordBot
                 var moonTime = new DateTime(1970, 1, 1).AddSeconds(upcomingMoon);
                 var now = DateTime.Now.ToUniversalTime();
 
-                var timeSpan = moonTime.Subtract(now);                
+                var timeSpan = moonTime.Subtract(now);
 
-                timer = new System.Timers.Timer(timeSpan.TotalMilliseconds);
+                var oneMinute = 60000;
+                timer = new System.Timers.Timer(timeSpan.TotalMilliseconds-oneMinute);
                 timer.Elapsed += OnAlert;
                 timer.Enabled = true;
             }
@@ -59,12 +59,18 @@ namespace Dx2_DiscordBot
 
         private void OnAlert(object sender, System.Timers.ElapsedEventArgs e)
         {
+            var task = new Task(SendAlert);
+            task.Start();
+        }
+
+        public async void SendAlert()
+        {
             timer.Enabled = false;
             timer = null;
 
-            Logger.LogAsync("SEND THE ALERT! This is a test.");
+            await Logger.LogAsync("SEND THE ALERT! This is a test.");
 
-            foreach(var g in _client.Guilds)
+            foreach (var g in _client.Guilds)
             {
                 if (g.Name == "Children of Mara")
                 {
@@ -96,17 +102,18 @@ namespace Dx2_DiscordBot
                     if (moonPhase && moonPhaseChnlId != 0)
                     {
                         var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
-                        chnl.SendMessageAsync("", false, eb.Build());
+                        await chnl.SendMessageAsync("", false, eb.Build());
                     }
                     else if (botSpam && botSpamChnlId != 0)
                     {
                         var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
-                        chnl.SendMessageAsync("", false, eb.Build());
+                        await chnl.SendMessageAsync("", false, eb.Build());
                     }
                 }
             }
 
-            timer = new System.Timers.Timer(7080000);
+            var timeUntiNextMoon = 7080000;       
+            timer = new System.Timers.Timer(timeUntiNextMoon);
             timer.Elapsed += OnAlert;
             timer.Enabled = true;
         }

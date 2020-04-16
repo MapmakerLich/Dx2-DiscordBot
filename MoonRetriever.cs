@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ namespace Dx2_DiscordBot
     public class MoonRetriever : RetrieverBase
     {
         #region Properties
+
+        System.Timers.Timer timer = null;
 
         #endregion
 
@@ -30,6 +33,78 @@ namespace Dx2_DiscordBot
         //Initialization
         public async override Task ReadyAsync()
         {
+            //OnAlert(null, null);
+            SetupTimer();
+        }
+
+        public void SetupTimer()
+        {
+            if (timer == null)
+            {
+                var upcomingMoon = GetUpcomingMoon();
+
+                var moonTime = new DateTime(1970, 1, 1).AddSeconds(upcomingMoon);
+                var now = DateTime.Now.ToUniversalTime();
+
+                var timeSpan = moonTime.Subtract(now);                
+
+                timer = new System.Timers.Timer(timeSpan.TotalMilliseconds);
+                timer.Elapsed += OnAlert;
+                timer.Enabled = true;
+            }
+        }
+
+        private List<string> botSpamChannelNames = new List<string>() { "bot-spam", "spam-bot" };
+        private List<string> moonPhaseChannelNames = new List<string>() { "moon-phase", "phase-moon" };
+
+        private void OnAlert(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Logger.LogAsync("SEND THE ALERT! This is a test.");
+
+            foreach(var g in _client.Guilds)
+            {
+                if (g.Name == "Children of Mara")
+                {
+                    var botSpam = false;
+                    var moonPhase = false;
+
+                    ulong botSpamChnlId = 0;
+                    ulong moonPhaseChnlId = 0;
+
+                    foreach (var c in g.Channels)
+                    {
+                        if (botSpam == false)
+                        {
+                            botSpam = botSpamChannelNames.Any(s => s == c.Name);
+                            botSpamChnlId = c.Id;
+                        }
+                        if (moonPhase == false)
+                        {
+                            moonPhase = moonPhaseChannelNames.Any(s => s == c.Name);
+                            moonPhaseChnlId = c.Id;
+                        }
+                    }
+
+                    var description = "Full Moon has started in Aura Gate!";
+
+                    var eb = new EmbedBuilder();
+                    eb.WithDescription(description);
+
+                    if (moonPhase && moonPhaseChnlId != 0)
+                    {
+                        var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
+                        chnl.SendMessageAsync("", false, eb.Build());
+                    }
+                    else if (botSpam && botSpamChnlId != 0)
+                    {
+                        var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
+                        chnl.SendMessageAsync("", false, eb.Build());
+                    }
+                }
+            }
+
+            timer = null;
+            SetupTimer();
         }
 
         //Recieve Messages here
@@ -52,14 +127,13 @@ namespace Dx2_DiscordBot
                     var upcomingMoon2 = GetNextFullMoon(upcomingMoon);
                     var upcomingMoon3 = GetNextFullMoon(upcomingMoon2);
 
-                    var description = FormatTime(upcomingMoon) + "\n" + FormatTime(upcomingMoon2) + "\n" + FormatTime(upcomingMoon3);
+                    var description = FormatNextTime(upcomingMoon) + "\n" + FormatNextTime(upcomingMoon2) + "\n" + FormatNextTime(upcomingMoon3);
 
                     var eb = new EmbedBuilder();
                     eb.WithDescription(description);
                     await chnl.SendMessageAsync("", false, eb.Build());
                 }
             }
-            
         }
 
         //Returns the commands for this Retriever
@@ -103,12 +177,22 @@ namespace Dx2_DiscordBot
             return currentTime + full_moon_duration * 2 + moon_duration * 14;
         }
 
-        public string FormatTime(int seconds)
+        public string FormatNextTime(int seconds)
         {            
             var moonTime = new DateTime(1970, 1, 1).AddSeconds(seconds);
             var now = DateTime.Now.ToUniversalTime();
 
             var timeSpan = moonTime.Subtract(now);            
+
+            return moonTime.ToString("H:mm tt UTC") + string.Format(" {0} Hour(s) and {1} Minute(s) Away", timeSpan.Hours, timeSpan.Minutes);
+        }
+
+        public string FormatAlertTime(int seconds)
+        {
+            var moonTime = new DateTime(1970, 1, 1).AddSeconds(seconds);
+            var now = DateTime.Now.ToUniversalTime();
+
+            var timeSpan = moonTime.Subtract(now);
 
             return moonTime.ToString("H:mm tt UTC") + string.Format(" {0} Hour(s) and {1} Minute(s) Away", timeSpan.Hours, timeSpan.Minutes);
         }

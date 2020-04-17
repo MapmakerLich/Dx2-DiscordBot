@@ -95,22 +95,19 @@ namespace Dx2_DiscordBot
                     }
 
                     var role = g.Roles.FirstOrDefault(r => r.Name == "FullMoonCrew");
-                    var eb = new EmbedBuilder();
-                    eb.WithDescription("Full Moon has started in Aura Gate!");
 
                     if (moonPhase && moonPhaseChnlId != 0)
                     {
                         var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
                         if (role != null && role.IsMentionable)
-                            await chnl.SendMessageAsync(role.Mention);
-                        await chnl.SendMessageAsync("", false, eb.Build());
+                            await chnl.SendMessageAsync(role.Mention + " ```Full Moon has started in Aura Gate!```");
                     }
                     else if (botSpam && botSpamChnlId != 0)
                     {
                         var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
                         if (role != null && role.IsMentionable)
                             await chnl.SendMessageAsync(role.Mention);
-                        await chnl.SendMessageAsync("", false, eb.Build());
+                        await chnl.SendMessageAsync("```Full Moon has started in Aura Gate!```");
                     }
                 }
             }

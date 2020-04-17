@@ -72,44 +72,48 @@ namespace Dx2_DiscordBot
 
             foreach (var g in _client.Guilds)
             {
-                if (g.Name == "Children of Mara")
+                var botSpam = false;
+                var moonPhase = false;
+
+                ulong botSpamChnlId = 0;
+                ulong moonPhaseChnlId = 0;
+
+                foreach (var c in g.Channels)
                 {
-                    var botSpam = false;
-                    var moonPhase = false;
-
-                    ulong botSpamChnlId = 0;
-                    ulong moonPhaseChnlId = 0;
-
-                    foreach (var c in g.Channels)
+                    if (botSpam == false)
                     {
-                        if (botSpam == false)
-                        {
-                            botSpam = botSpamChannelNames.Any(s => s == c.Name);
-                            botSpamChnlId = c.Id;
-                        }
-                        if (moonPhase == false)
-                        {
-                            moonPhase = moonPhaseChannelNames.Any(s => s == c.Name);
-                            moonPhaseChnlId = c.Id;
-                        }
+                        botSpam = botSpamChannelNames.Any(s => s == c.Name);
+                        botSpamChnlId = c.Id;
                     }
-
-                    var role = g.Roles.FirstOrDefault(r => r.Name == "FullMoonCrew");
-
-                    if (moonPhase && moonPhaseChnlId != 0)
+                    if (moonPhase == false)
                     {
-                        var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
-                        if (role != null && role.IsMentionable)
-                            await chnl.SendMessageAsync(role.Mention + " ```Full Moon has started in Aura Gate!```");
-                    }
-                    else if (botSpam && botSpamChnlId != 0)
-                    {
-                        var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
-                        if (role != null && role.IsMentionable)
-                            await chnl.SendMessageAsync(role.Mention);
-                        await chnl.SendMessageAsync("```Full Moon has started in Aura Gate!```");
+                        moonPhase = moonPhaseChannelNames.Any(s => s == c.Name);
+                        moonPhaseChnlId = c.Id;
                     }
                 }
+
+                var role = g.Roles.FirstOrDefault(r => r.Name == "FullMoonCrew");
+
+                if (moonPhase && moonPhaseChnlId != 0)
+                {
+                    var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
+                    if (role != null && role.IsMentionable)
+                        await chnl.SendMessageAsync(role.Mention + "```Full Moon has started in Aura Gate!```");
+                    else
+                        await chnl.SendMessageAsync("```Full Moon has started in Aura Gate!```");
+
+                    await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                }
+                else if (botSpam && botSpamChnlId != 0)
+                {
+                    var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
+                    if (role != null && role.IsMentionable)
+                        await chnl.SendMessageAsync(role.Mention + "```Full Moon has started in Aura Gate!```");
+                    else
+                        await chnl.SendMessageAsync("```Full Moon has started in Aura Gate!```");
+
+                    await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                }                
             }
 
             var timeUntiNextMoon = 7080000;       

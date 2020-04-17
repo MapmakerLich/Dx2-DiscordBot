@@ -97,7 +97,7 @@ namespace Dx2_DiscordBot
                 if (moonPhase && moonPhaseChnlId != 0)
                 {
                     var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
-                    if (role != null && role.IsMentionable)
+                    if (role != null)
                         await chnl.SendMessageAsync(role.Mention + "```Full Moon has started in Aura Gate!```");
                     else
                         await chnl.SendMessageAsync("```Full Moon has started in Aura Gate!```");
@@ -107,7 +107,7 @@ namespace Dx2_DiscordBot
                 else if (botSpam && botSpamChnlId != 0)
                 {
                     var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
-                    if (role != null && role.IsMentionable)
+                    if (role != null)
                         await chnl.SendMessageAsync(role.Mention + "```Full Moon has started in Aura Gate!```");
                     else
                         await chnl.SendMessageAsync("```Full Moon has started in Aura Gate!```");

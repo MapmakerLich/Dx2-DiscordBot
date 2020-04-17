@@ -116,7 +116,7 @@ namespace Dx2_DiscordBot
                 }                
             }
 
-            var timeUntiNextMoon = 702000;       
+            var timeUntiNextMoon = 7020000;       
             timer = new System.Timers.Timer(timeUntiNextMoon);
             timer.Elapsed += OnAlert;
             timer.Enabled = true;

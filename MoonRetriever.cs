@@ -93,14 +93,14 @@ namespace Dx2_DiscordBot
                 }
 
                 var role = g.Roles.FirstOrDefault(r => r.Name == "FullMoonCrew");
-
+                var message = "```Full Moon is starting in one minute in Aura Gate!```";
                 if (moonPhase && moonPhaseChnlId != 0)
                 {
                     var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
-                    if (role != null)
-                        await chnl.SendMessageAsync(role.Mention + "```Full Moon has started in Aura Gate!```");
+                    if (role != null || role.)
+                        await chnl.SendMessageAsync(role.Mention + message);
                     else
-                        await chnl.SendMessageAsync("```Full Moon has started in Aura Gate!```");
+                        await chnl.SendMessageAsync(message);
 
                     await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
                 }
@@ -108,18 +108,20 @@ namespace Dx2_DiscordBot
                 {
                     var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
                     if (role != null)
-                        await chnl.SendMessageAsync(role.Mention + "```Full Moon has started in Aura Gate!```");
+                        await chnl.SendMessageAsync(role.Mention + message);
                     else
-                        await chnl.SendMessageAsync("```Full Moon has started in Aura Gate!```");
+                        await chnl.SendMessageAsync(message);
 
                     await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
                 }                
             }
 
-            var timeUntiNextMoon = 7020000;       
-            timer = new System.Timers.Timer(timeUntiNextMoon);
-            timer.Elapsed += OnAlert;
-            timer.Enabled = true;
+            SetupTimer();
+
+            //var timeUntiNextMoon = 7080000;       
+            //timer = new System.Timers.Timer(timeUntiNextMoon);
+            //timer.Elapsed += OnAlert;
+            //timer.Enabled = true;
         }
 
         //Recieve Messages here
@@ -133,6 +135,7 @@ namespace Dx2_DiscordBot
                 if (message.Content.StartsWith(MainCommand + "help"))
                 {
                     await chnl.SendMessageAsync(
+                        "Below is the steps to set the bot up in your own server." +
                         "1.) Create a channel called bot-spam or moon-phase that the bot has permission to write to.\n" +
                         "2.) moon-phase will take priority over bot-spam as the bots output if you have both.\n" +
                         "3.) Bot will automatically write to this channel every time a full moon begins.\n" +

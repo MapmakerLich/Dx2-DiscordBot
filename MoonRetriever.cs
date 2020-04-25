@@ -16,6 +16,8 @@ namespace Dx2_DiscordBot
 
         System.Timers.Timer timer = null;
 
+        Random rand = new Random();
+
         #endregion
 
         #region Constructor
@@ -47,8 +49,8 @@ namespace Dx2_DiscordBot
 
                 var timeSpan = moonTime.Subtract(now);
 
-                var oneMinute = 60000;
-                timer = new System.Timers.Timer(timeSpan.TotalMilliseconds-oneMinute);
+                var minusTime = 120000;
+                timer = new System.Timers.Timer(timeSpan.TotalMilliseconds- minusTime);
                 timer.Elapsed += OnAlert;
                 timer.Enabled = true;
             }
@@ -93,11 +95,14 @@ namespace Dx2_DiscordBot
                 }
 
                 var role = g.Roles.FirstOrDefault(r => r.Name == "FullMoonCrew");
-                var message = "```Full Moon is starting in one minute in Aura Gate!```";
+                var randomPhrase = new [] { "Head to Aura Gate!", "Suit up!", "Theres evil afoot!", "DANGER, DANGER, DANGER!" };
+                int index = rand.Next(randomPhrase.Length);
+
+                var message = "```Full Moon begins in one minute. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to began recieving notifications!```";
                 if (moonPhase && moonPhaseChnlId != 0)
                 {
                     var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
-                    if (role != null || role.)
+                    if (role != null)
                         await chnl.SendMessageAsync(role.Mention + message);
                     else
                         await chnl.SendMessageAsync(message);
@@ -117,7 +122,6 @@ namespace Dx2_DiscordBot
             }
 
             SetupTimer();
-
             //var timeUntiNextMoon = 7080000;       
             //timer = new System.Timers.Timer(timeUntiNextMoon);
             //timer.Elapsed += OnAlert;
@@ -135,11 +139,14 @@ namespace Dx2_DiscordBot
                 if (message.Content.StartsWith(MainCommand + "help"))
                 {
                     await chnl.SendMessageAsync(
-                        "Below is the steps to set the bot up in your own server." +
-                        "1.) Create a channel called bot-spam or moon-phase that the bot has permission to write to.\n" +
+                        "```Below is the steps to set the bot up in your own server. Not all must be done so please read over them.\n" +
+                        "1.) Create a channel called bot-spam or moon-phase that the bot has permission to write to them.\n" +
                         "2.) moon-phase will take priority over bot-spam as the bots output if you have both.\n" +
-                        "3.) Bot will automatically write to this channel every time a full moon begins.\n" +
-                        "The bot can also mention the role named 'FullMoonCrew' if you create and assign it for your users.", false);
+                        "3.) The bot will mention the role named 'FullMoonCrew' when sending the alert.\n" +
+                        "4.) If you wish to allow your users to subscribe and unsubscribe from a role the bot manages give the bot permission to manage roles." +
+                        "The bot will create a role called 'FullMoonCrew' and this role will used with the !moonsub and !moonunsub commands allowing users to set and un-set the role at will.\n" +
+                        "5.) If you do not need the 'FullMoonCrew' role then instead you can decide not to give the bot role permissions and you will still recieve alerts just not targeted to a specific role.\n\n" +
+                        "If you have issues getting this working on your server, seeing an issue, or dislike this feature please message @Alenael.1801.```", false);
                 }
                 else if (message.Content.StartsWith(MainCommand + "next"))
                 {
@@ -153,6 +160,32 @@ namespace Dx2_DiscordBot
                     eb.WithDescription(description);
                     await chnl.SendMessageAsync("", false, eb.Build());
                 }
+                else if (message.Content.StartsWith(MainCommand + "sub"))
+                {
+                    var roleExists = CreateRole(serverName, out SocketRole role);
+
+                    if (roleExists)
+                    {
+                        var user = await chnl.GetUserAsync(message.Author.Id);
+                        await (user as IGuildUser)?.AddRoleAsync(role);
+                        await chnl.SendMessageAsync(message.Author.Mention + "```Subscribed to Full Moon Alert. Use !moonunsub to remove this subscription.```");
+                    }
+                    else
+                        await chnl.SendMessageAsync("```Ask server owner to follow steps in !moonhelp in order to get this working.```");
+                }
+                else if (message.Content.StartsWith(MainCommand + "unsub"))
+                {
+                    var roleExists = CreateRole(serverName, out SocketRole role);
+
+                    if (roleExists)
+                    {
+                        var user = await chnl.GetUserAsync(message.Author.Id);
+                        await (user as IGuildUser)?.RemoveRoleAsync(role);
+                        await chnl.SendMessageAsync(message.Author.Mention + "```Unsubscribed from Full Moon Alert.```");
+                    }
+                    else
+                        await chnl.SendMessageAsync("```Ask server owner to follow steps in !moonhelp in order to get this working.```");
+                }
             }
         }
 
@@ -161,6 +194,8 @@ namespace Dx2_DiscordBot
         {
             return "\n\nMoon Phases:" +
             "\n* " + MainCommand + "help: Prints instructions for setting up Moon Phases on your Discord Server." +
+            "\n* " + MainCommand + "sub: Adds the FullMoonCrew role to you if the server has setup the bot with enough permissions to do so." +
+            "\n* " + MainCommand + "unsub: Removes the FullMoonCrew role from you if the server has setup the bot with enough permissions to do so." +
             "\n* " + MainCommand + "next: Prints the next 3 upcoming full moon phase.";
         }
 
@@ -173,16 +208,46 @@ namespace Dx2_DiscordBot
         private const int full_moon_duration = 10 * 60;
         public const int next_moons_count = 20;
 
+        public bool CreateRole(string serverName, out SocketRole role)
+        {
+            var guild = _client.Guilds.FirstOrDefault(g => g.Name == serverName);
+            role = guild?.Roles.FirstOrDefault(r => r.Name == "FullMoonCrew");
+
+            if (guild != null)
+            {
+                if (guild.CurrentUser.GuildPermissions.ManageRoles)
+                {
+                    if (role == null)
+                    {
+                        try
+                        {
+                            guild.CreateRoleAsync("FullMoonCrew");
+                        }
+                        catch(Exception e)
+                        {
+                            Logger.LogAsync("Error: " + e.StackTrace);
+                        }                        
+                        return true;
+                    }
+                    else
+                        return true;
+                }
+                else
+                    return false;
+            }
+
+            return false;
+        }
+
         public long GetUpcomingMoon()
         {
-            var currentTime = GetCurrentTime();
             var nextFullMoon = Math.Floor(start_ref);
 
             while (true)
             {                
                 nextFullMoon = GetNextFullMoon(nextFullMoon);
 
-                if (nextFullMoon < currentTime)
+                if (nextFullMoon < GetCurrentTime())
                     continue;
                 else
                     break;
@@ -212,7 +277,7 @@ namespace Dx2_DiscordBot
         public double GetCurrentTime()
         {
             var time = new TimeSpan(DateTime.Now.ToUniversalTime().Ticks);
-            return Math.Floor(time.TotalSeconds);
+            return Math.Floor(time.TotalSeconds+150);
         }
         
         #endregion

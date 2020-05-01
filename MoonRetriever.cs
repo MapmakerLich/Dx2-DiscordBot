@@ -98,7 +98,7 @@ namespace Dx2_DiscordBot
                 var randomPhrase = new [] { "Head to Aura Gate!", "Suit up!", "Theres evil afoot!", "DANGER, DANGER, DANGER!" };
                 int index = rand.Next(randomPhrase.Length);
 
-                var message = "```Full Moon begins in one minute. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to began recieving notifications!```";
+                var message = "```Full Moon begins in one minute. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin recieving notifications!```";
                 if (moonPhase && moonPhaseChnlId != 0)
                 {
                     var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;

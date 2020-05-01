@@ -98,7 +98,7 @@ namespace Dx2_DiscordBot
                 var randomPhrase = new [] { "Head to Aura Gate!", "Suit up!", "Theres evil afoot!", "DANGER, DANGER, DANGER!" };
                 int index = rand.Next(randomPhrase.Length);
 
-                var message = "```Full Moon begins in one minute. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin recieving notifications!```";
+                var message = "```Full Moon begins in one minute. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
                 if (moonPhase && moonPhaseChnlId != 0)
                 {
                     var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
@@ -145,7 +145,7 @@ namespace Dx2_DiscordBot
                         "3.) The bot will mention the role named 'FullMoonCrew' when sending the alert.\n" +
                         "4.) If you wish to allow your users to subscribe and unsubscribe from a role the bot manages give the bot permission to manage roles." +
                         "The bot will create a role called 'FullMoonCrew' and this role will used with the !moonsub and !moonunsub commands allowing users to set and un-set the role at will.\n" +
-                        "5.) If you do not need the 'FullMoonCrew' role then instead you can decide not to give the bot role permissions and you will still recieve alerts just not targeted to a specific role.\n\n" +
+                        "5.) If you do not need the 'FullMoonCrew' role then instead you can decide not to give the bot role permissions and you will still receive alerts just not targeted to a specific role.\n\n" +
                         "If you have issues getting this working on your server, seeing an issue, or dislike this feature please message @Alenael.1801.```", false);
                 }
                 else if (message.Content.StartsWith(MainCommand + "next"))

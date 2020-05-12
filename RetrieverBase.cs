@@ -55,7 +55,7 @@ namespace Dx2_DiscordBot
             if (message.Content.StartsWith(MainCommand))
                 await Logger.LogAsync(serverName + " Sent: " + message.Content);
 
-            if (message.Content.StartsWith("!dx2reload"))            
+            if (message.Content.StartsWith("!dx2reload"))
                 await ReadyAsync();            
         }
 

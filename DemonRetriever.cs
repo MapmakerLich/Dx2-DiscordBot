@@ -57,36 +57,72 @@ namespace Dx2_DiscordBot
 
                 //Save demon to be searched for
                 string searchedDemon = items[1].Trim().Replace("*", "☆").ToLower();
-                
-                //Try to find demon
-                var demon = Demons.Find(d => d.Name.ToLower() == searchedDemon);
 
                 if (_client.GetChannel(channelId) is IMessageChannel chnl)
                 {
+                    //Try to find demon
+                    var demon = Demons.Find(d => d.Name.ToLower() == searchedDemon);
+
                     //If exact demon not found
                     if (demon.Name == null)
                     {
-                        //Find all similar demons
-                        List<String> similarDemons = GetSimilarDemons(searchedDemon, LEV_DISTANCE);
+                        //Find anyone matching the nickname of a demon
+                        demon = Demons.Find(d => d.Nicknames != "" && d.NicknamesList.Any(n => n == searchedDemon));
 
-                        //If no similar demons found
-                        if (similarDemons.Count == 0)
+                        if (demon.Name == null)
                         {
-                            List<string> demonsStartingWith = new List<string>();
+                            //Find all similar demons
+                            List<String> similarDemons = GetSimilarDemons(searchedDemon, LEV_DISTANCE);
 
-                            demonsStartingWith = FindDemonsStartingWith(searchedDemon);
-                            
-                            if (demonsStartingWith.Count == 1)
+                            //If no similar demons found
+                            if (similarDemons.Count == 0)
                             {
-                                demon = Demons.Find(x => x.Name.ToLower() == demonsStartingWith[0].ToLower());
+                                List<string> demonsStartingWith = new List<string>();
+
+                                demonsStartingWith = FindDemonsStartingWith(searchedDemon);
+
+                                if (demonsStartingWith.Count == 1)
+                                {
+                                    demon = Demons.Find(x => x.Name.ToLower() == demonsStartingWith[0].ToLower());
+                                    if (demon.Name != null)
+                                        await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
+                                }
+                                else if (demonsStartingWith.Count > 1)
+                                {
+                                    string answerString = "Could not find: " + searchedDemon + ". Did you mean: ";
+
+                                    foreach (string fuzzyDemon in demonsStartingWith)
+                                    {
+                                        answerString += fuzzyDemon + ", ";
+                                    }
+
+                                    //Remove last space and comma
+                                    answerString = answerString.Remove(answerString.Length - 2);
+
+                                    answerString += "?";
+
+                                    await chnl.SendMessageAsync(answerString, false);
+                                }
+                                else
+                                {
+                                    await chnl.SendMessageAsync("Could not find: " + searchedDemon, false);
+                                }
+                            }
+                            //If exactly 1 demon found, return its Info
+                            else if (similarDemons.Count == 1)
+                            {
+                                //Find exactly this demon
+                                demon = Demons.Find(x => x.Name.ToLower() == similarDemons[0].ToLower());
                                 if (demon.Name != null)
                                     await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
                             }
-                            else if(demonsStartingWith.Count > 1)
+                            //If similar demons found
+                            else
                             {
+                                //Build answer string
                                 string answerString = "Could not find: " + searchedDemon + ". Did you mean: ";
 
-                                foreach (string fuzzyDemon in demonsStartingWith)
+                                foreach (string fuzzyDemon in similarDemons)
                                 {
                                     answerString += fuzzyDemon + ", ";
                                 }
@@ -98,41 +134,12 @@ namespace Dx2_DiscordBot
 
                                 await chnl.SendMessageAsync(answerString, false);
                             }
-                            else
-                            {
-                                await chnl.SendMessageAsync("Could not find: " + searchedDemon, false);
-                            }
                         }
-                        //If exactly 1 demon found, return its Info
-                        else if (similarDemons.Count == 1)
-                        {
-                            //Find exactly this demon
-                            demon = Demons.Find(x => x.Name.ToLower() == similarDemons[0].ToLower());
-                            if (demon.Name != null)
-                                await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
-                        }
-                        //If similar demons found
                         else
-                        {
-                            //Build answer string
-                            string answerString = "Could not find: " + searchedDemon + ". Did you mean: ";
-
-                            foreach (string fuzzyDemon in similarDemons)
-                            {
-                                answerString += fuzzyDemon + ", ";
-                            }
-
-                            //Remove last space and comma
-                            answerString = answerString.Remove(answerString.Length - 2);
-
-                            answerString += "?";
-
-                            await chnl.SendMessageAsync(answerString, false);
-                        }
-                            
+                            await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
                     }
-                    else                    
-                        await chnl.SendMessageAsync("", false, demon.WriteToDiscord());                    
+                    else              
+                        await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
                 }
             }
         }
@@ -332,6 +339,20 @@ namespace Dx2_DiscordBot
             demon.MultiFusion = row["Multi-Fusion"] is DBNull ? false : (string)row["Multi-Fusion"] == "1";
             demon.BannerRequired = row["Banner Required"] is DBNull ? false : (string)row["Banner Required"] == "1";
 
+            demon.Nicknames = row["Nickname"] is DBNull ? "" : (string)row["Nickname"];
+            demon.NicknamesList = new List<string>();
+
+            if (demon.Nicknames.Contains(","))
+            {
+                var nicknameList = demon.Nicknames.Split(",");
+                foreach (var nickname in nicknameList)
+                    demon.NicknamesList.Add(nickname.Trim());
+            }
+            else
+            {
+                demon.NicknamesList.Add(demon.Nicknames.Trim());
+            }
+
             return demon;
         }
 
@@ -412,6 +433,9 @@ namespace Dx2_DiscordBot
         public bool Event;
         public bool MultiFusion;
         public bool BannerRequired;
+
+        public string Nicknames;
+        public List<string> NicknamesList;
 
         public Embed WriteToDiscord()
         {

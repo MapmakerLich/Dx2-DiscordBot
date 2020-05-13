@@ -260,6 +260,13 @@ namespace Dx2_DiscordBot
                 bestArchetypePvP = bestArchetypePvP.Remove(bestArchetypePvP.Length - 2, 2);
             }
 
+            var description = "";
+
+            if (!string.IsNullOrEmpty(pros))
+                description += "Pros:\n" + pros + "\n\n";
+            if (!string.IsNullOrEmpty(cons))
+                description += "Cons:\n" + cons;
+
             var eb = new EmbedBuilder();
             eb.WithTitle(Name);
             if (!string.IsNullOrEmpty(bestArchetypePvE))
@@ -272,10 +279,7 @@ namespace Dx2_DiscordBot
                 eb.AddField("PvP Offense Rating", PvPOffenseScore, true);
             if (!string.IsNullOrEmpty(PvPDefScore))
                 eb.AddField("PvP Defense Rating", PvPDefScore, true);
-            if (!string.IsNullOrEmpty(pros))
-                eb.AddField("Pros", pros, false);
-            if (!string.IsNullOrEmpty(cons))
-                eb.AddField("Cons", cons, false);
+            eb.WithDescription(description);
             eb.WithFooter("If you disagree with this discuss in #tier-list in Dx2 Liberation Discord Server or update the Wiki page by clicking the demons name at the top.");
             eb.WithUrl(url);
             eb.WithThumbnailUrl(thumbnail);

@@ -128,20 +128,35 @@ namespace Dx2_DiscordBot
         //Sends a list of commands to the server
         private async Task SendCommandsAsync(ulong id)
         {
-            string message = "```md\nCommands:" +
+            string message = "```md\nSomething not working? DM darkseraphim#1801 on Discord or contact u/AlenaelReal on reddit for help.\n" +
+                             "\nCommands:" +
                              "\n* !dx2help - Displays list of commands";
 
             //Ask each Retriever to print their commands to our list
             foreach (var retriever in Retrievers)
-                message += retriever.GetCommands();
+            {
+                var messageToAdd = retriever.GetCommands();
 
-            //Add our ending
-            message += "\n\nSomething not working? DM darkseraphim#1801 on Discord or contact u/AlenaelReal on reddit for help.```";
+                if ((message + messageToAdd + "```").Length > 1999)
+                {
+                    if (_client.GetChannel(id) is IMessageChannel chnl)
+                        await chnl.SendMessageAsync(message + "```");
+                    else
+                        await Logger.LogAsync("Failed to send Commands" + id);
 
-            if (_client.GetChannel(id) is IMessageChannel chnl)
-                await chnl.SendMessageAsync(message);
-            else
-                await Logger.LogAsync("Failed to send Commands" + id);
+                    message = "```md\n";
+                }
+                
+                message += messageToAdd;
+            }
+
+            if (message != "```md\n")
+            {
+                if (_client.GetChannel(id) is IMessageChannel chnl)
+                    await chnl.SendMessageAsync(message + "```");
+                else
+                    await Logger.LogAsync("Failed to send Commands" + id);
+            }
         }
     }
 }

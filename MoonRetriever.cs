@@ -221,7 +221,7 @@ namespace Dx2_DiscordBot
                     {
                         try
                         {
-                            guild.CreateRoleAsync("FullMoonCrew");
+                            guild.CreateRoleAsync("FullMoonCrew", null, null, false, null);
                         }
                         catch(Exception e)
                         {

@@ -586,13 +586,13 @@ namespace Dx2_DiscordBot
             if (newDemon == "")
                 return "";
 
-            newDemon = "[" + newDemon + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(newDemon) + ")";
+            newDemon = "[" + newDemon.Replace("(", "").Replace(")", "") + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(newDemon) + ")";
             return newDemon;
         }
 
         public string GenerateDemonWikiLink()
         {
-            return "[" + Name + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(Name) + ")";             
+            return "[" + Name + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(Name) + ")";
         }
     }
 

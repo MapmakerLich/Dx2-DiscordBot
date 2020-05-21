@@ -586,7 +586,7 @@ namespace Dx2_DiscordBot
             if (newDemon == "")
                 return "";
 
-            newDemon = "[" + newDemon.Replace("(", "").Replace(")", "") + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(newDemon) + ")";
+            newDemon = "[" + newDemon.Replace("(", "").Replace(")", "") + "](https://dx2wiki.com/index.php/" + Uri.EscapeUriString(newDemon).Replace("(", "%28").Replace(")", "%29") + ")";
             return newDemon;
         }
 

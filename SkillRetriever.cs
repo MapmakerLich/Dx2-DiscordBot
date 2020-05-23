@@ -250,7 +250,7 @@ namespace Dx2_DiscordBot
 
             Description = Description.Replace("\\n", "\n") + TransferrableFrom;
 
-            var url = "https://dx2wiki.com/index.php/" + Uri.EscapeDataString(Name);
+            var url = "https://dx2wiki.com/index.php/" + Uri.EscapeDataString(Name.Replace("[", "(").Replace("]", ")")).Replace("(", "%28").Replace(")", "%29");
             var thumbnail = "https://teambuilder.dx2wiki.com/Images/Spells/" + Uri.EscapeDataString(Element) + ".png";
 
             //Generate our embeded message and return it

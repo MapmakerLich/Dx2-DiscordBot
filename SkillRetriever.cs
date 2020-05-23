@@ -239,6 +239,7 @@ namespace Dx2_DiscordBot
             };
             
             skill.BuildSKill(DemonRetriever.GetDemonsWithSkill(name));
+            skill.BuildInnateSKill(DemonRetriever.GetDemonsWithInnateSkill(name));
 
             return skill;
         }
@@ -258,6 +259,7 @@ namespace Dx2_DiscordBot
         public string Sp;
         public string LearnedBy;
         public string TransferableFrom;
+        public string InnateFrom;
         public bool ExtractExclusive;
         public bool DuelExclusive;
         public bool ExtractTransfer;
@@ -276,7 +278,7 @@ namespace Dx2_DiscordBot
             if (Sp == "")
                 Sp = "-";
 
-            Description = Description.Replace("\\n", "\n") + TransferrableFrom;
+            Description = Description.Replace("\\n", "\n") + InnateFrom + TransferrableFrom;
 
             var url = "https://dx2wiki.com/index.php/" + Uri.EscapeDataString(Name.Replace("[", "(").Replace("]", ")")).Replace("(", "%28").Replace(")", "%29");
             var thumbnail = "https://teambuilder.dx2wiki.com/Images/Spells/" + Uri.EscapeDataString(Element) + ".png";
@@ -289,11 +291,48 @@ namespace Dx2_DiscordBot
             eb.AddField("Target: ", Target, true);
             eb.AddField("Sp: ", Sp, true);
             if (!string.IsNullOrEmpty(Nicknames))
-                eb.AddField("Nicknames: ", Nicknames, true);
+                eb.WithFooter("Nicknames: " + Nicknames.Replace(",", ", "));
             eb.WithDescription(Description);
             eb.WithUrl(url);
             eb.WithThumbnailUrl(thumbnail);
             return eb.Build();
+        }
+
+        //Builds out our skill with additional details that require some processing
+        public void BuildInnateSKill(Dictionary<string, List<Demon>> skillInfos)
+        {
+            var innateFrom = "";
+
+            if (skillInfos["Innate"].Count > 0)
+            {
+                innateFrom += "\n\n Innate From: ";
+
+                foreach (var s in skillInfos["Innate"])
+                {
+                    innateFrom += s.Name;
+
+                    if (Name == s.AwakenT)
+                        innateFrom += " (T)";
+
+                    if (Name == s.AwakenR)
+                        innateFrom += " (R)";
+
+                    if (Name == s.AwakenY)
+                        innateFrom += " (Y)";
+
+                    if (Name == s.AwakenP)
+                        innateFrom += " (P)";
+
+                    if (Name == s.AwakenC)
+                        innateFrom += " (C)";
+
+                    innateFrom += ", ";
+                }
+
+                innateFrom = innateFrom.Remove(innateFrom.Length - 2, 2);
+            }
+
+            InnateFrom = innateFrom;
         }
 
         //Builds out our skill with additional details that require some processing

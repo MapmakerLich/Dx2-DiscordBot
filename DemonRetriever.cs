@@ -257,6 +257,28 @@ namespace Dx2_DiscordBot
         }
 
         //Returns a list of demons that have a skill allows for expandability later on via different sets of data points
+        public static Dictionary<string, List<Demon>> GetDemonsWithInnateSkill(string skillName)
+        {
+            var fixedName = FixSkillsNamedAsDemons(skillName);
+
+            var demons = new Dictionary<string, List<Demon>>();
+
+            var transferableDemons = Demons.Where(
+                d => d.Skill1 == fixedName ||
+                d.Skill2 == fixedName ||
+                d.Skill3 == fixedName ||
+                d.AwakenC == fixedName ||
+                d.AwakenP == fixedName ||
+                d.AwakenR == fixedName ||
+                d.AwakenT == fixedName ||
+                d.AwakenY == fixedName).ToList();
+
+            demons.Add("Innate", transferableDemons);
+
+            return demons;
+        }
+
+        //Returns a list of demons that have a skill allows for expandability later on via different sets of data points
         public static Dictionary<string, List<Demon>> GetDemonsWithSkill(string skillName)
         {
             var fixedName = FixSkillsNamedAsDemons(skillName);
@@ -560,7 +582,7 @@ namespace Dx2_DiscordBot
             var nicknames = "";
 
             if (!string.IsNullOrEmpty(Nicknames))
-                nicknames = " | Nicknames: " + Nicknames;
+                nicknames = " | Nicknames: " + Nicknames.Replace(",", ", ");
 
             //Other Info
             eb.WithFooter(

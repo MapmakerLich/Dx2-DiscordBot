@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -62,33 +63,70 @@ namespace Dx2_DiscordBot
                     //If exact demon not found
                     if (skill.Name == null)
                     {
-                        //Find all similar demons
-                        List<String> similarDemons = getSimilarSkills(searchedSkill, LEV_DISTANCE);
+                        //Find anyone matching the nickname of a demon
+                        skill = Skills.Find(s => s.Nicknames != "" && s.NicknamesList.Any(n => n == searchedSkill));
 
-                        //If no similar demons found
-                        if (similarDemons.Count == 0)
+                        //If exact demon not found
+                        if (skill.Name == null)
                         {
-                            List<string> skillsStartingWith = new List<string>();
+                            //Find all similar demons
+                            List<String> similarDemons = getSimilarSkills(searchedSkill, LEV_DISTANCE);
 
-                            skillsStartingWith = findSkillsStartingWith(searchedSkill);
-                            
-                            if (skillsStartingWith.Count == 1)
+                            //If no similar demons found
+                            if (similarDemons.Count == 0)
                             {
-                                skill = Skills.Find(x => x.Name.ToLower() == skillsStartingWith[0].ToLower());
+                                List<string> skillsStartingWith = new List<string>();
+
+                                skillsStartingWith = findSkillsStartingWith(searchedSkill);
+
+                                if (skillsStartingWith.Count == 1)
+                                {
+                                    skill = Skills.Find(x => x.Name.ToLower() == skillsStartingWith[0].ToLower());
+                                    if (skill.Name != null)
+                                        await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
+                                }
+                                else if (skillsStartingWith.Count > MAX_SIMILAR_SKILLS)
+                                {
+                                    await chnl.SendMessageAsync("Could not find: " + searchedSkill + ". More than " + MAX_SIMILAR_SKILLS + " skills that start with this name exists, please refine your search.", false);
+                                }
+                                else if (skillsStartingWith.Count > 1)
+                                {
+                                    string answerString = "Could not find: " + searchedSkill + ". Did you mean: ";
+
+                                    foreach (string fuzzySkill in skillsStartingWith)
+                                    {
+                                        answerString += fuzzySkill + ", ";
+                                    }
+
+                                    //Remove last space and comma
+                                    answerString = answerString.Remove(answerString.Length - 2);
+
+                                    answerString += "?";
+
+                                    await chnl.SendMessageAsync(answerString, false);
+                                }
+                                else
+                                {
+                                    await chnl.SendMessageAsync("Could not find: " + searchedSkill, false);
+                                }
+                            }
+                            //If exactly 1 demon found, return its Info
+                            else if (similarDemons.Count == 1)
+                            {
+                                //Find exactly this demon
+                                skill = Skills.Find(x => x.Name.ToLower() == similarDemons[0].ToLower());
                                 if (skill.Name != null)
                                     await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
                             }
-                            else if(skillsStartingWith.Count > MAX_SIMILAR_SKILLS)
+                            //If similar demons found
+                            else
                             {
-                                await chnl.SendMessageAsync("Could not find: " + searchedSkill + ". More than " + MAX_SIMILAR_SKILLS + " skills that start with this name exists, please refine your search.", false);
-                            }
-                            else if (skillsStartingWith.Count > 1)
-                            {
+                                //Build answer string
                                 string answerString = "Could not find: " + searchedSkill + ". Did you mean: ";
 
-                                foreach (string fuzzySkill in skillsStartingWith)
+                                foreach (string fuzzyDemon in similarDemons)
                                 {
-                                    answerString += fuzzySkill + ", ";
+                                    answerString += fuzzyDemon + ", ";
                                 }
 
                                 //Remove last space and comma
@@ -98,38 +136,9 @@ namespace Dx2_DiscordBot
 
                                 await chnl.SendMessageAsync(answerString, false);
                             }
-                            else
-                            {
-                                await chnl.SendMessageAsync("Could not find: " + searchedSkill, false);
-                            }
                         }
-                        //If exactly 1 demon found, return its Info
-                        else if (similarDemons.Count == 1)
-                        {
-                            //Find exactly this demon
-                            skill = Skills.Find(x => x.Name.ToLower() == similarDemons[0].ToLower());
-                            if (skill.Name != null)
-                                await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
-                        }
-                        //If similar demons found
                         else
-                        {
-                            //Build answer string
-                            string answerString = "Could not find: " + searchedSkill + ". Did you mean: ";
-
-                            foreach (string fuzzyDemon in similarDemons)
-                            {
-                                answerString += fuzzyDemon + ", ";
-                            }
-
-                            //Remove last space and comma
-                            answerString = answerString.Remove(answerString.Length - 2);
-
-                            answerString += "?";
-
-                            await chnl.SendMessageAsync(answerString, false);
-                        }
-
+                            await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
                     }
                     else
                         await chnl.SendMessageAsync("", false, skill.WriteToDiscord());
@@ -200,6 +209,20 @@ namespace Dx2_DiscordBot
         {
             var name = row["Name"] is DBNull ? "" : (string)row["Name"];
 
+            var nicknames = row["Nickname"] is DBNull ? "" : (string)row["Nickname"];
+            var nicknamesList = new List<string>();
+
+            if (nicknames.Contains(","))
+            {
+                var nicknameList = nicknames.Split(",");
+                foreach (var nickname in nicknameList)
+                    nicknamesList.Add(nickname.Trim());
+            }
+            else
+            {
+                nicknamesList.Add(nicknames.Trim());
+            }
+
             var skill = new Skill
             {
                 Name = name,
@@ -210,7 +233,9 @@ namespace Dx2_DiscordBot
                 Sp = row["Skill Points"] is DBNull ? "" : (string)row["Skill Points"],
                 ExtractExclusive = row["ExtractExclusive"] != null ? false : (bool)row["ExtractExclusive"],
                 DuelExclusive = row["DuelExclusive"] != null ? false : (bool)row["DuelExclusive"],
-                ExtractTransfer = row["ExtractTransfer"] != null ? false : (bool)row["ExtractTransfer"]
+                ExtractTransfer = row["ExtractTransfer"] != null ? false : (bool)row["ExtractTransfer"],
+                Nicknames = nicknames,
+                NicknamesList = nicknamesList
             };
             
             skill.BuildSKill(DemonRetriever.GetDemonsWithSkill(name));
@@ -236,7 +261,10 @@ namespace Dx2_DiscordBot
         public bool ExtractExclusive;
         public bool DuelExclusive;
         public bool ExtractTransfer;
-        public string TransferrableFrom;        
+        public string TransferrableFrom;
+
+        public string Nicknames;
+        public List<string> NicknamesList;
 
         public Embed WriteToDiscord()
         {

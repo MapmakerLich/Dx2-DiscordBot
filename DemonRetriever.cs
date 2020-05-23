@@ -557,12 +557,18 @@ namespace Dx2_DiscordBot
                 fusionUrls
                 , true);
 
+            var nicknames = "";
+
+            if (!string.IsNullOrEmpty(Nicknames))
+                nicknames = " | Nicknames: " + Nicknames;
+
             //Other Info
             eb.WithFooter(
                 "Race: " + Race +
                 " | Grade: " + Grade +
                 " | Rarity: " + Rarity +
-                " | Ai: " + Ai);
+                " | Ai: " + Ai +
+                nicknames);
             eb.WithColor(Color.Red);
             eb.WithUrl(url);
             eb.WithThumbnailUrl(thumbnail);

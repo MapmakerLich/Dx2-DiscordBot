@@ -288,6 +288,8 @@ namespace Dx2_DiscordBot
             eb.AddField("Cost: ", Cost, true);
             eb.AddField("Target: ", Target, true);
             eb.AddField("Sp: ", Sp, true);
+            if (!string.IsNullOrEmpty(Nicknames))
+                eb.AddField("Nicknames: ", Nicknames, true);
             eb.WithDescription(Description);
             eb.WithUrl(url);
             eb.WithThumbnailUrl(thumbnail);

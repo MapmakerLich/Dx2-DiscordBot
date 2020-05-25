@@ -15,6 +15,9 @@ namespace Dx2_DiscordBot
         #region Properties
 
         public static List<DemonInfo> Demons;
+        public static SortedDictionary<int, List<DemonInfo>> PvPOffRatings;
+        public static SortedDictionary<int, List<DemonInfo>> PvPDefRatings;
+        public static SortedDictionary<int, List<DemonInfo>> PvERatings;
 
         private const int LEV_DISTANCE = 1;
 
@@ -41,6 +44,43 @@ namespace Dx2_DiscordBot
             foreach (DataRow row in demonsDt.Rows)
                 tempDemons.Add(LoadDemonInfo(row));
             Demons = tempDemons;
+
+            PvPOffRatings = CreateRankings(Demons, 0);
+            PvPDefRatings = CreateRankings(Demons, 1);
+            PvERatings = CreateRankings(Demons, 2);
+        }
+
+        public SortedDictionary<int, List<DemonInfo>> CreateRankings(List<DemonInfo> demonInfo, int type)
+        {
+            var tempDict = new SortedDictionary<int, List<DemonInfo>>();
+
+            for(var i = 6; i < 11; i++)
+            {
+                var tempList = new List<DemonInfo>();
+
+                foreach (var d in demonInfo)
+                {
+                    switch (type)
+                    {
+                        case 0:
+                            if (d.PvPOffScoreDbl >= i && d.PvPOffScoreDbl < i + 1)
+                                tempList.Add(d);
+                            break;
+                        case 1:
+                            if (d.PvPDefScoreDbl >= i && d.PvPDefScoreDbl < i + 1)
+                                tempList.Add(d);
+                            break;
+                        case 2:
+                            if (d.PvEScoreDbl >= i && d.PvEScoreDbl < i + 1)
+                                tempList.Add(d);
+                            break;
+                    }
+                }
+
+                tempDict.Add(i, tempList);
+            }
+
+            return tempDict;
         }
 
         //Recieve Messages here
@@ -56,43 +96,60 @@ namespace Dx2_DiscordBot
                 if (items[1].Trim().StartsWith("list"))
                 {
                     if (_client.GetChannel(channelId) is IMessageChannel chnl)
-                    {
-                        
+                    {                        
                         if (items[1].Trim() == "listdef")
                         {
-                            var sortedDemons = Demons.OrderByDescending(d => d.PvPDefScoreDbl).ToList();
+                            if (PvPDefRatings != null)
+                            {
+                                var embed = WriteTierListToDiscord(PvPDefRatings, "Top PvP Defense Rankings", 1);
+                                await chnl.SendMessageAsync("", false, embed);
+                            }
 
-                            var tierListStr = "```PvP Defense Tier List:\n";
+                            //var sortedDemons = Demons.OrderByDescending(d => d.PvPDefScoreDbl).ToList();
 
-                            foreach (var demon in sortedDemons)
-                                if (demon.PvPDefScoreDbl >= 8)
-                                    tierListStr += demon.Name + " - " + demon.PvPDefScore + "\n";
+                            //var tierListStr = "```PvP Defense Tier List:\n";
 
-                            await chnl.SendMessageAsync(tierListStr + "```");
+                            //foreach (var demon in sortedDemons)
+                            //    if (demon.PvPDefScoreDbl >= 8)
+                            //        tierListStr += demon.Name + " - " + demon.PvPDefScore + "\n";
+
+                            //await chnl.SendMessageAsync(tierListStr + "```");
                         }
                         else if (items[1].Trim() == "listpve")
                         {
-                            var sortedDemons = Demons.OrderByDescending(d => d.PvEScoreDbl).ToList();
+                            if (PvERatings != null)
+                            {
+                                var embed = WriteTierListToDiscord(PvERatings, "Top PvE Rankings", 2);
+                                await chnl.SendMessageAsync("", false, embed);
+                            }
 
-                            var tierListStr = "```PvE Tier List:\n";
+                            //var sortedDemons = Demons.OrderByDescending(d => d.PvEScoreDbl).ToList();
 
-                            foreach (var demon in sortedDemons)
-                                if (demon.PvEScoreDbl >= 8)
-                                    tierListStr += demon.Name + " - " + demon.PvEScore + "\n";
+                            //var tierListStr = "```PvE Tier List:\n";
 
-                            await chnl.SendMessageAsync(tierListStr + "```");
+                            //foreach (var demon in sortedDemons)
+                            //    if (demon.PvEScoreDbl >= 8)
+                            //        tierListStr += demon.Name + " - " + demon.PvEScore + "\n";
+
+                            //await chnl.SendMessageAsync(tierListStr + "```");
                         }
                         else if (items[1].Trim() == "list")
                         {
-                            var sortedDemons = Demons.OrderByDescending(d => d.PvPOffScoreDbl).ToList();
+                            if (PvPOffRatings != null)
+                            {
+                                var embed = WriteTierListToDiscord(PvPOffRatings, "Top PvP Offense Rankings", 0);
+                                await chnl.SendMessageAsync("", false, embed);
+                            }
 
-                            var tierListStr = "```PvP Offense Tier List:\n";
+                            //var sortedDemons = Demons.OrderByDescending(d => d.PvPOffScoreDbl).ToList();
 
-                            foreach (var demon in sortedDemons)
-                                if (demon.PvPOffScoreDbl >= 8)
-                                    tierListStr += demon.Name + " - " + demon.PvPOffenseScore + "\n";
+                            //var tierListStr = "```PvP Offense Tier List:\n";
 
-                            await chnl.SendMessageAsync(tierListStr + "```");
+                            //foreach (var demon in sortedDemons)
+                            //    if (demon.PvPOffScoreDbl >= 8)
+                            //        tierListStr += demon.Name + " - " + demon.PvPOffenseScore + "\n";
+
+                            //await chnl.SendMessageAsync(tierListStr + "```");
                         }
                     }
                 }
@@ -231,6 +288,9 @@ namespace Dx2_DiscordBot
         public override string GetCommands()
         {
             return "\n\nTier Data Commands:" +
+            "\n* " + MainCommand + "list - Displays each demon in the top 4 tiers in the PvP Off tier list." +
+            "\n* " + MainCommand + "listdef - Displays each demon in the top 4 tiers in the PvP Def tier list." +
+            "\n* " + MainCommand + "listpve - Displays each demon in the top 4 tiers in the PvE tier list." +
             "\n* " + MainCommand + " [Demon Name] - Search's for a demon with the name you provided as [Demon Name]. If nothing is found you will recieve a message back stating Demon was not found. Alternate demons can be found like.. Shiva A, Nekomata A. ☆ can be interperted as * when performing searches like... Nero*, V*";
         }
 
@@ -258,6 +318,41 @@ namespace Dx2_DiscordBot
             return demon;
         }
 
+        public Embed WriteTierListToDiscord(SortedDictionary<int, List<DemonInfo>> rankings, string title, int type)
+        {
+            var eb = new EmbedBuilder();
+            eb.WithTitle(title);
+
+            foreach(var item in rankings.OrderByDescending(item => item.Key))
+            {
+                var demonsList = "";
+
+                foreach(var demon in item.Value)
+                {
+                    switch (type)
+                    {
+                        case 0:
+                            demonsList += $"{demon.Name} ({demon.PvPOffScoreDbl}), ";
+                            break;
+                        case 1:
+                            demonsList += $"{demon.Name} ({demon.PvPDefScoreDbl}), ";
+                            break;
+                        case 2:
+                            demonsList += $"{demon.Name} ({demon.PvEScoreDbl}), ";
+                            break;
+                    }
+                }
+
+                if (demonsList != "")
+                    demonsList = demonsList.Remove(demonsList.Length - 2, 2);
+
+                eb.AddField($"Tier {item.Key}:", demonsList, false);
+            }
+
+            eb.WithFooter("If you disagree with this discuss in #tier-list in Dx2 Liberation Discord Server or update the Wiki pages.");
+            return eb.Build();
+        }
+
         #endregion
     }
     #region Structs
@@ -275,14 +370,15 @@ namespace Dx2_DiscordBot
         public string Cons;
         public bool FiveStar;
 
-        public double PvEScoreDbl 
-        { 
-            get 
+        public double PvEScoreDbl
+        {
+            get
             {
                 double.TryParse(PvEScore, out double dbl);
                 return dbl;
-            } 
+            }
         }
+
         public double PvPDefScoreDbl
         {
             get
@@ -318,7 +414,7 @@ namespace Dx2_DiscordBot
             var bestArchetypePvE = "";
             if (!string.IsNullOrEmpty(BestArchetypePvE))
             {
-                foreach (char ch in BestArchetypePvE)                
+                foreach (char ch in BestArchetypePvE)
                     bestArchetypePvE += ch.ToString() + ", ";
 
                 bestArchetypePvE = bestArchetypePvE.Remove(bestArchetypePvE.Length - 2, 2);
@@ -327,7 +423,7 @@ namespace Dx2_DiscordBot
             var bestArchetypePvP = "";
             if (!string.IsNullOrEmpty(BestArchetypePvP))
             {
-                foreach (char ch in BestArchetypePvP)                
+                foreach (char ch in BestArchetypePvP)
                     bestArchetypePvP += ch.ToString() + ", ";
 
                 bestArchetypePvP = bestArchetypePvP.Remove(bestArchetypePvP.Length - 2, 2);

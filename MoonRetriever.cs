@@ -70,62 +70,63 @@ namespace Dx2_DiscordBot
             timer.Enabled = false;
             timer = null;
 
-            await Logger.LogAsync("SEND THE ALERT!");
-
-            foreach (var g in _client.Guilds)
+            if (_client != null && _client.Guilds != null)
             {
-                var botSpam = false;
-                var moonPhase = false;
+                await Logger.LogAsync("SEND THE ALERT!");
 
-                ulong botSpamChnlId = 0;
-                ulong moonPhaseChnlId = 0;
-
-                foreach (var c in g.Channels)
+                foreach (var g in _client.Guilds)
                 {
-                    if (botSpam == false)
+                    var botSpam = false;
+                    var moonPhase = false;
+
+                    ulong botSpamChnlId = 0;
+                    ulong moonPhaseChnlId = 0;
+
+                    foreach (var c in g.Channels)
                     {
-                        botSpam = botSpamChannelNames.Any(s => s == c.Name);
-                        botSpamChnlId = c.Id;
+                        if (botSpam == false)
+                        {
+                            botSpam = botSpamChannelNames.Any(s => s == c.Name);
+                            botSpamChnlId = c.Id;
+                        }
+                        if (moonPhase == false)
+                        {
+                            moonPhase = moonPhaseChannelNames.Any(s => s == c.Name);
+                            moonPhaseChnlId = c.Id;
+                        }
                     }
-                    if (moonPhase == false)
+
+                    var role = g.Roles.FirstOrDefault(r => r.Name == "FullMoonCrew");
+                    var randomPhrase = new[] { "Head to Aura Gate!", "Suit up!", "Theres evil afoot!", "DANGER, DANGER, DANGER!" };
+                    int index = rand.Next(randomPhrase.Length);
+
+                    var message = "```Full Moon begins in one minute. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
+                    if (moonPhase && moonPhaseChnlId != 0)
                     {
-                        moonPhase = moonPhaseChannelNames.Any(s => s == c.Name);
-                        moonPhaseChnlId = c.Id;
+                        var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
+                        if (role != null)
+                            await chnl.SendMessageAsync(role.Mention + message);
+                        else
+                            await chnl.SendMessageAsync(message);
+
+                        await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                    }
+                    else if (botSpam && botSpamChnlId != 0)
+                    {
+                        var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
+                        if (role != null)
+                            await chnl.SendMessageAsync(role.Mention + message);
+                        else
+                            await chnl.SendMessageAsync(message);
+
+                        await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
                     }
                 }
-
-                var role = g.Roles.FirstOrDefault(r => r.Name == "FullMoonCrew");
-                var randomPhrase = new [] { "Head to Aura Gate!", "Suit up!", "Theres evil afoot!", "DANGER, DANGER, DANGER!" };
-                int index = rand.Next(randomPhrase.Length);
-
-                var message = "```Full Moon begins in one minute. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
-                if (moonPhase && moonPhaseChnlId != 0)
-                {
-                    var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
-                    if (role != null)
-                        await chnl.SendMessageAsync(role.Mention + message);
-                    else
-                        await chnl.SendMessageAsync(message);
-
-                    await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
-                }
-                else if (botSpam && botSpamChnlId != 0)
-                {
-                    var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
-                    if (role != null)
-                        await chnl.SendMessageAsync(role.Mention + message);
-                    else
-                        await chnl.SendMessageAsync(message);
-
-                    await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
-                }                
             }
+            else
+                await Logger.LogAsync("Could not send the Alert!");
 
             SetupTimer();
-            //var timeUntiNextMoon = 7080000;       
-            //timer = new System.Timers.Timer(timeUntiNextMoon);
-            //timer.Elapsed += OnAlert;
-            //timer.Enabled = true;
         }
 
         //Recieve Messages here

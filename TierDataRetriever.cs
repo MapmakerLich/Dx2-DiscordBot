@@ -412,7 +412,11 @@ namespace Dx2_DiscordBot
                 cons = "* " + Cons.Replace("\n", "\n* ");
 
             var bestArchetypePvE = "";
-            if (!string.IsNullOrEmpty(BestArchetypePvE))
+            if (BestArchetypePvE == "Any")
+            {
+                bestArchetypePvE = "Any";
+            }
+            else if (!string.IsNullOrEmpty(BestArchetypePvE))
             {
                 foreach (char ch in BestArchetypePvE)
                     bestArchetypePvE += ch.ToString() + ", ";
@@ -421,7 +425,11 @@ namespace Dx2_DiscordBot
             }
 
             var bestArchetypePvP = "";
-            if (!string.IsNullOrEmpty(BestArchetypePvP))
+            if (BestArchetypePvP == "Any")
+            {
+                bestArchetypePvP = "Any";
+            }
+            else if (!string.IsNullOrEmpty(BestArchetypePvP))
             {
                 foreach (char ch in BestArchetypePvP)
                     bestArchetypePvP += ch.ToString() + ", ";

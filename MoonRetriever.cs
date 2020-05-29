@@ -49,8 +49,8 @@ namespace Dx2_DiscordBot
 
                 var timeSpan = moonTime.Subtract(now);
 
-                var minusTime = 120000;
-                timer = new System.Timers.Timer(timeSpan.TotalMilliseconds- minusTime);
+                var minusTime = 240000;
+                timer = new System.Timers.Timer(timeSpan.TotalMilliseconds - minusTime);
                 timer.Elapsed += OnAlert;
                 timer.Enabled = true;
             }
@@ -100,7 +100,7 @@ namespace Dx2_DiscordBot
                     var randomPhrase = new[] { "Head to Aura Gate!", "Suit up!", "Theres evil afoot!", "DANGER, DANGER, DANGER!" };
                     int index = rand.Next(randomPhrase.Length);
 
-                    var message = "```Full Moon begins in one minute. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
+                    var message = "```Full Moon begins in three minutes. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
                     if (moonPhase && moonPhaseChnlId != 0)
                     {
                         var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
@@ -269,7 +269,7 @@ namespace Dx2_DiscordBot
             var moonTime = new DateTime().AddSeconds(seconds);
             var now = DateTime.Now.ToUniversalTime();
 
-            var timeSpan = moonTime.Subtract(now);            
+            var timeSpan = moonTime.Subtract(now);
 
             return moonTime.ToString("h:mm tt UTC") + string.Format(" {0} Hour(s) and {1} Minute(s) Away", timeSpan.Hours, timeSpan.Minutes);
         }

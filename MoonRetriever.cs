@@ -47,9 +47,18 @@ namespace Dx2_DiscordBot
                 var moonTime = new DateTime().AddSeconds(upcomingMoon);
                 var now = DateTime.Now.ToUniversalTime();
 
-                var timeSpan = moonTime.Subtract(now);
-
                 var minusTime = 240000;
+                var timeSpan = new TimeSpan();
+                timeSpan = moonTime.Subtract(now);
+                var max = Math.Max(timeSpan.TotalMilliseconds - minusTime, 0);
+
+                if (max == 0)
+                {
+                    var nextFullMoon = GetNextFullMoon(upcomingMoon);
+                    moonTime = new DateTime().AddSeconds(nextFullMoon);
+                    timeSpan = moonTime.Subtract(now);
+                }
+
                 timer = new System.Timers.Timer(timeSpan.TotalMilliseconds - minusTime);
                 timer.Elapsed += OnAlert;
                 timer.Enabled = true;
@@ -61,11 +70,11 @@ namespace Dx2_DiscordBot
 
         private void OnAlert(object sender, System.Timers.ElapsedEventArgs e)
         {
-            var task = new Task(SendAlert);
+            var task = new Task(() => SendAlert());
             task.Start();
         }
 
-        public async void SendAlert()
+        public async void SendAlert(bool forTesting = false)
         {
             timer.Enabled = false;
             timer = null;
@@ -100,27 +109,30 @@ namespace Dx2_DiscordBot
                     var randomPhrase = new[] { "Head to Aura Gate!", "Suit up!", "Theres evil afoot!", "DANGER, DANGER, DANGER!" };
                     int index = rand.Next(randomPhrase.Length);
 
-                    var message = "```Full Moon begins in three minutes. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
-                    if (moonPhase && moonPhaseChnlId != 0)
-                    {
-                        var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
-                        if (role != null)
-                            await chnl.SendMessageAsync(role.Mention + message);
-                        else
-                            await chnl.SendMessageAsync(message);
+                    //if (!forTesting)
+                    //{
+                    //    var message = "```Full Moon begins in three minutes. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
+                    //    if (moonPhase && moonPhaseChnlId != 0)
+                    //    {
+                    //        var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
+                    //        if (role != null)
+                    //            await chnl.SendMessageAsync(role.Mention + message);
+                    //        else
+                    //            await chnl.SendMessageAsync(message);
 
-                        await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
-                    }
-                    else if (botSpam && botSpamChnlId != 0)
-                    {
-                        var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
-                        if (role != null)
-                            await chnl.SendMessageAsync(role.Mention + message);
-                        else
-                            await chnl.SendMessageAsync(message);
+                    //        await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                    //    }
+                    //    else if (botSpam && botSpamChnlId != 0)
+                    //    {
+                    //        var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
+                    //        if (role != null)
+                    //            await chnl.SendMessageAsync(role.Mention + message);
+                    //        else
+                    //            await chnl.SendMessageAsync(message);
 
-                        await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
-                    }
+                    //        await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                    //    }
+                    //}
                 }
             }
             else
@@ -187,6 +199,11 @@ namespace Dx2_DiscordBot
                     else
                         await chnl.SendMessageAsync("```Ask server owner to follow steps in !moonhelp in order to get this working.```");
                 }
+                else if (message.Content.StartsWith(MainCommand + "test"))
+                {
+                    if (message.Author.ToString() == "Alenael#1801")
+                        SendAlert(true);
+                }
             }
         }
 
@@ -245,7 +262,7 @@ namespace Dx2_DiscordBot
             var nextFullMoon = Math.Floor(start_ref);
 
             while (true)
-            {                
+            {
                 nextFullMoon = GetNextFullMoon(nextFullMoon);
 
                 if (nextFullMoon < GetCurrentTime())

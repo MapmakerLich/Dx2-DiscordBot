@@ -109,30 +109,30 @@ namespace Dx2_DiscordBot
                     var randomPhrase = new[] { "Head to Aura Gate!", "Suit up!", "Theres evil afoot!", "DANGER, DANGER, DANGER!" };
                     int index = rand.Next(randomPhrase.Length);
 
-                    //if (!forTesting)
-                    //{
-                    //    var message = "```Full Moon begins in three minutes. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
-                    //    if (moonPhase && moonPhaseChnlId != 0)
-                    //    {
-                    //        var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
-                    //        if (role != null)
-                    //            await chnl.SendMessageAsync(role.Mention + message);
-                    //        else
-                    //            await chnl.SendMessageAsync(message);
+                    if (!forTesting)
+                    {
+                        var message = "```Full Moon begins in three minutes. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
+                        if (moonPhase && moonPhaseChnlId != 0)
+                        {
+                            var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
+                            if (role != null)
+                                await chnl.SendMessageAsync(role.Mention + message);
+                            else
+                                await chnl.SendMessageAsync(message);
 
-                    //        await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
-                    //    }
-                    //    else if (botSpam && botSpamChnlId != 0)
-                    //    {
-                    //        var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
-                    //        if (role != null)
-                    //            await chnl.SendMessageAsync(role.Mention + message);
-                    //        else
-                    //            await chnl.SendMessageAsync(message);
+                            await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                        }
+                        else if (botSpam && botSpamChnlId != 0)
+                        {
+                            var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
+                            if (role != null)
+                                await chnl.SendMessageAsync(role.Mention + message);
+                            else
+                                await chnl.SendMessageAsync(message);
 
-                    //        await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
-                    //    }
-                    //}
+                            await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                        }
+                    }
                 }
             }
             else

@@ -104,16 +104,6 @@ namespace Dx2_DiscordBot
                                 var embed = WriteTierListToDiscord(PvPDefRatings, "Top PvP Defense Rankings", 1);
                                 await chnl.SendMessageAsync("", false, embed);
                             }
-
-                            //var sortedDemons = Demons.OrderByDescending(d => d.PvPDefScoreDbl).ToList();
-
-                            //var tierListStr = "```PvP Defense Tier List:\n";
-
-                            //foreach (var demon in sortedDemons)
-                            //    if (demon.PvPDefScoreDbl >= 8)
-                            //        tierListStr += demon.Name + " - " + demon.PvPDefScore + "\n";
-
-                            //await chnl.SendMessageAsync(tierListStr + "```");
                         }
                         else if (items[1].Trim() == "listpve")
                         {
@@ -122,16 +112,6 @@ namespace Dx2_DiscordBot
                                 var embed = WriteTierListToDiscord(PvERatings, "Top PvE Rankings", 2);
                                 await chnl.SendMessageAsync("", false, embed);
                             }
-
-                            //var sortedDemons = Demons.OrderByDescending(d => d.PvEScoreDbl).ToList();
-
-                            //var tierListStr = "```PvE Tier List:\n";
-
-                            //foreach (var demon in sortedDemons)
-                            //    if (demon.PvEScoreDbl >= 8)
-                            //        tierListStr += demon.Name + " - " + demon.PvEScore + "\n";
-
-                            //await chnl.SendMessageAsync(tierListStr + "```");
                         }
                         else if (items[1].Trim() == "list")
                         {
@@ -140,16 +120,6 @@ namespace Dx2_DiscordBot
                                 var embed = WriteTierListToDiscord(PvPOffRatings, "Top PvP Offense Rankings", 0);
                                 await chnl.SendMessageAsync("", false, embed);
                             }
-
-                            //var sortedDemons = Demons.OrderByDescending(d => d.PvPOffScoreDbl).ToList();
-
-                            //var tierListStr = "```PvP Offense Tier List:\n";
-
-                            //foreach (var demon in sortedDemons)
-                            //    if (demon.PvPOffScoreDbl >= 8)
-                            //        tierListStr += demon.Name + " - " + demon.PvPOffenseScore + "\n";
-
-                            //await chnl.SendMessageAsync(tierListStr + "```");
                         }
                     }
                 }

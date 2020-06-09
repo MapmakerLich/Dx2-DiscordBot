@@ -108,11 +108,11 @@ namespace Dx2_DiscordBot
                 }
                 else if (message.Content.StartsWith(MainCommand + "map"))
                 {
-                    Task.Run(() => GetMap(message, chnl));
+                    _ = Task.Run(() => GetMap(message, chnl));
                 }
                 else if (message.Content.StartsWith(MainCommand + "boss"))
                 {
-                    Task.Run(() => GetBoss(message, chnl));
+                    _ = Task.Run(() => GetBoss(message, chnl));
                 }
             }
         }

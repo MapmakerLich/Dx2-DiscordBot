@@ -16,7 +16,6 @@ namespace Dx2_DiscordBot
 
         #endregion
 
-
         #region Constructor
 
         //Constructor
@@ -33,7 +32,7 @@ namespace Dx2_DiscordBot
         public async override Task ReadyAsync()
         {
             await Task.Run(() => Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "map\\"));
-            await Task.Run(() => Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "boss\\"));            
+            await Task.Run(() => Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "boss\\"));
         }
 
         //Recieve Messages here
@@ -109,24 +108,11 @@ namespace Dx2_DiscordBot
                 }
                 else if (message.Content.StartsWith(MainCommand + "map"))
                 {
-                    var items = message.Content.Split(MainCommand + "map");
-                    var file = GetFile("map\\", items[1].Trim());
-
-                    if (file != "" && File.Exists(file))
-                        await chnl.SendFileAsync(file, "AG2 Map - " + items[1].Trim());
-                    else
-                        await chnl.SendMessageAsync("Could not find map for that floor. Upload it yourself using !ag2mapupload# and adding an attachment.");
+                    Task.Run(() => GetMap(message, chnl));
                 }
-
                 else if (message.Content.StartsWith(MainCommand + "boss"))
                 {
-                    var items = message.Content.Split(MainCommand + "boss");
-                    var file = GetFile("boss\\", items[1].Trim());
-
-                    if (file != "" && File.Exists(file))
-                        await chnl.SendFileAsync(file, "AG2 Boss - " + items[1].Trim());
-                    else
-                        await chnl.SendMessageAsync("Could not find boss for that floor. Upload it yourself using !ag2bossupload# and adding an attachment.");
+                    Task.Run(() => GetBoss(message, chnl));
                 }
             }
         }
@@ -147,6 +133,30 @@ namespace Dx2_DiscordBot
 
         #region Public Methods
 
+        //Gets Map Image
+        public async Task GetMap(IMessage message, IMessageChannel chnl)
+        {
+            var items = message.Content.Split(MainCommand + "map");
+            var file = GetFile("map\\", items[1].Trim());
+
+            if (file != "" && File.Exists(file))
+                await chnl.SendFileAsync(file, "AG2 Map - " + items[1].Trim());
+            else
+                await chnl.SendMessageAsync("Could not find map for that floor. Upload it yourself using !ag2mapupload# and adding an attachment.");
+        }
+
+        //Gets boss image
+        public async Task GetBoss(IMessage message, IMessageChannel chnl)
+        {
+            var items = message.Content.Split(MainCommand + "boss");
+            var file = GetFile("boss\\", items[1].Trim());
+
+            if (file != "" && File.Exists(file))
+                await chnl.SendFileAsync(file, "AG2 Boss - " + items[1].Trim());
+            else
+                await chnl.SendMessageAsync("Could not find boss for that floor. Upload it yourself using !ag2bossupload# and adding an attachment.");
+        }
+
         //Gets file sin directory that match our search string
         public static string GetFile(string dir, string fileName)
         {
@@ -154,8 +164,8 @@ namespace Dx2_DiscordBot
                 fileName + ".*", SearchOption.TopDirectoryOnly)
                 .Where(f => f.EndsWith(".jpg") || f.EndsWith(".png")).ToList();
 
-            if (files.Count >= 1)            
-                return files[0];            
+            if (files.Count >= 1)
+                return files[0];
 
             return "";
         }
@@ -171,7 +181,7 @@ namespace Dx2_DiscordBot
             catch(Exception e)
             {
                 await Logger.LogAsync("Couldn't download image. " + e.Message);
-            }            
+            }
         }
 
         #endregion

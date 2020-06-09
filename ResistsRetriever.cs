@@ -101,8 +101,12 @@ namespace Dx2_DiscordBot
             //Generate our data
             foreach (var d in Demons)
             {
+                var dLink = "";
                 //Generate our link
-                var dLink = d.Name + ", ";
+                if (d.Rarity == "4" || d.Rarity == "5")
+                    dLink = $"**{d.Name}**, ";
+                else
+                    dLink =  $"{d.Name}, ";
 
                 //Check if demon has resist naturally
                 stockList += CheckType(d, type, element);

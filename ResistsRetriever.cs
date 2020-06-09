@@ -36,7 +36,7 @@ namespace Dx2_DiscordBot
         public override string GetCommands()
         {
             return "\n\nResist Commands:" +
-               "\n* " + MainCommand + " [Resist Type] [Element] - Returns a list of demons who have the matching type. Accepted [Resist Type]'s: Resist, Null, Repel, Drain. Acepted [Element]'s: Phys, Fire, Ice, Elec, Force, Light, Dark. Actual command example: !dx2resist Null Phys, !dx2resist Repel Fire, !dx2resist Drain Force, etc.";            
+               "\n* " + MainCommand + " [Resist Type] [Element] - Returns a list of demons who have the matching type. Accepted [Resist Type]'s: Resist, Null, Repel, Drain, Weak. Acepted [Element]'s: Phys, Fire, Ice, Elec, Force, Light, Dark. Actual command example: !dx2resist Null Phys, !dx2resist Repel Fire, !dx2resist Drain Force, etc.";            
         }
 
         public override int GetHashCode()
@@ -70,7 +70,7 @@ namespace Dx2_DiscordBot
 
         public bool SoftScanWords(String type, String element)
         {
-            if (type.ToLower() == "null" || type.ToLower() == "resist" || type.ToLower() == "repel" || type.ToLower() == "drain")
+            if (type.ToLower() == "null" || type.ToLower() == "resist" || type.ToLower() == "repel" || type.ToLower() == "drain" || type.ToLower() == "weak")
                 if (element.ToLower() == "phys" || element.ToLower() == "fire" || element.ToLower() == "ice"
                      || element.ToLower() == "elec" || element.ToLower() == "force" || element.ToLower() == "light" || element.ToLower() == "dark")
                 return true;

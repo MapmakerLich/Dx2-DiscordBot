@@ -19,6 +19,8 @@ namespace Dx2_DiscordBot
         private string BuffFormula { get; set; }
         private string InflictionFormula { get; set; }
         private string StatFormula { get; set; }
+
+        private string CritFormula { get; set; }
         private string HealFormula { get; set; }
 
         #endregion
@@ -61,6 +63,16 @@ namespace Dx2_DiscordBot
                 "Party speed is calculated first at an individual demon level then at a party level.\n" +
                 "INDIVIDUAL DEMON SPEED = (DEMON AGILITY + SKILL AGILITY + MITAMA AGILITY) *((SKILL SPEED PERCENT +BRAND SPEED PERCENT +PANEL PERCENT) / 100)\n" +
                 "PARTY SPEED TOTAL = INDIVIDUAL DEMON SPEED TOTAL / PARTY COUNT(It's an average)\n" +
+                "```";
+
+            CritFormula = "```" +
+                "LUCK DIFF = USER LUCK - ENEMY LUCK\n" +
+                "CRIT LUK VALUE = 20 if LUCK DIFF >= 30,\n" +
+                "     15 if LUCK DIFF >= 20,\n" +
+                "     10 if LUCK DIFF >= 10,\n" +
+                "      0 if LUCK DIFF >= 0,\n" +
+                "    -10 if LUCK DIFF < 0\n" +
+                "CRIT CHANCE = CRIT LUK VALUE +BASE SKILL CRIT CHANCE + PASSIVE SKILLS / PANEL CRIT CHANCE +CRIT BRANDS - ENEMY CRIT REDUC SKILLS / PANEL + Dx2 CRIT SKILL\n" +
                 "```";
 
             BuffFormula = "```" +
@@ -135,6 +147,9 @@ namespace Dx2_DiscordBot
                         case "heal":
                             await chnl.SendMessageAsync(HealFormula, false);
                             break;
+                        case "crit":
+                            await chnl.SendMessageAsync(CritFormula, false);
+                            break;
                     }
                 }
             }
@@ -151,7 +166,8 @@ namespace Dx2_DiscordBot
             "\n* " + MainCommand + "buff - Displays Buff Formula." +
             "\n* " + MainCommand + "inf - Displays Infliction Formula." +
             "\n* " + MainCommand + "stat - Displays Stat Formulas." +
-            "\n* " + MainCommand + "heal - Displays Heal Formula.";
+            "\n* " + MainCommand + "heal - Displays Heal Formula." +
+            "\n* " + MainCommand + "crit - Displays Heal Formula.";
         }
 
         #endregion

@@ -40,7 +40,6 @@ namespace Dx2_DiscordBot
             ResetTimer();
         }
 
-
         //Recieve Messages here
         public async override Task MessageReceivedAsync(SocketMessage message, string serverName, ulong channelId)
         {
@@ -55,7 +54,7 @@ namespace Dx2_DiscordBot
                 {
                     if (_client.GetChannel(channelId) is IMessageChannel chnl)
                     {
-                        await SendNews(new News() { Title = "Kishin/Snake Fusion 30% OFF Event Coming Soon! (This is a manual test of the system. Thanks for the understanding.)", Url = "https://d2-megaten-l.sega.com/en/news/detail/079492.html", Image = "https://d2-megaten-l.sega.com/webview/en/upload_images/848669ee2d7bc251692a9f264817eb62cc7ee313.png" }, true);
+                        _ = SendNews(new News() { Title = "Kishin/Snake Fusion 30% OFF Event Coming Soon! (This is a manual test of the system. Thanks for the understanding.)", Url = "https://d2-megaten-l.sega.com/en/news/detail/079492.html", Image = "https://d2-megaten-l.sega.com/webview/en/upload_images/848669ee2d7bc251692a9f264817eb62cc7ee313.png" }, true);
                     }
                 }
             }
@@ -72,7 +71,7 @@ namespace Dx2_DiscordBot
         #region Public Methods
 
         public void ResetTimer()
-        {            
+        {
             timer = new System.Timers.Timer(600000);
             timer.Elapsed += Timer_Elapsed;
             timer.Enabled = true;
@@ -89,11 +88,12 @@ namespace Dx2_DiscordBot
             {
                 if (!NewsItems.Any(i => i.Url == ni.Url))
                 {
-                    NewsItems.Add(ni);
-                    await SendNews(ni);
-                    await Logger.LogAsync($"New News Posted! {ni.Title}");
+                    _ = Logger.LogAsync($"New News Posted! {ni.Title}");
+                    _ = SendNews(ni);
                 }
             }
+
+            NewsItems = newNewsItems;
 
             ResetTimer();
         }
@@ -134,13 +134,17 @@ namespace Dx2_DiscordBot
                 {
                     chnl = _client.GetChannel(newsChnlId) as SocketTextChannel;
                     if (chnl != null)
-                        canSend = g.CurrentUser.GetPermissions(chnl).SendMessages;
+                        canSend = g.CurrentUser.GetPermissions(chnl).SendMessages &&
+                            g.CurrentUser.GetPermissions(chnl).EmbedLinks &&
+                            g.CurrentUser.GetPermissions(chnl).AttachFiles;
                 }
                 if (!canSend && botSpam && botSpamChnlId != 0)
                 {
                     chnl = _client.GetChannel(botSpamChnlId) as SocketTextChannel;
                     if (chnl != null)
-                        canSend = g.CurrentUser.GetPermissions(chnl).SendMessages;
+                        canSend = g.CurrentUser.GetPermissions(chnl).SendMessages &&
+                            g.CurrentUser.GetPermissions(chnl).EmbedLinks &&
+                            g.CurrentUser.GetPermissions(chnl).AttachFiles;
                 }
 
                 if (chnl != null && canSend)

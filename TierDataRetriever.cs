@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dx2_DiscordBot
@@ -18,6 +19,7 @@ namespace Dx2_DiscordBot
         public static SortedDictionary<int, List<DemonInfo>> PvPOffRatings;
         public static SortedDictionary<int, List<DemonInfo>> PvPDefRatings;
         public static SortedDictionary<int, List<DemonInfo>> PvERatings;
+        public System.Timers.Timer Timer;
 
         private const int LEV_DISTANCE = 1;
 
@@ -37,6 +39,26 @@ namespace Dx2_DiscordBot
 
         //Initialization
         public async override Task ReadyAsync()
+        {
+            await LoadData();
+            Timer = new System.Timers.Timer();
+            var now = DateTime.Now;
+            var tomorrow = new DateTime(now.Year, now.Month, now.Day + 1, 0, 0, 0);
+            var duration = (tomorrow - now).TotalMilliseconds;
+            Timer.Interval = duration;
+            Timer.Elapsed += Timer_Elapsed;
+            Timer.Start();
+        }
+
+        private async void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Timer.Stop();
+            await LoadData();
+            Timer.Interval = 86400000;
+            Timer.Enabled = true;
+        }
+
+        public async Task LoadData()
         {
             var demonsDt = await GetCSV("https://raw.githubusercontent.com/Alenael/Dx2DB/master/csv/TierData.csv");
 

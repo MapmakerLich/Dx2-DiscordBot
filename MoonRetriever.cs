@@ -114,23 +114,35 @@ namespace Dx2_DiscordBot
                         var message = "```Full Moon begins in three minutes. " + randomPhrase[index] + "\n!moonunsub to stop being notified of this event.\n!moonsub to begin receiving notifications!```";
                         if (moonPhase && moonPhaseChnlId != 0)
                         {
-                            var chnl = _client.GetChannel(moonPhaseChnlId) as IMessageChannel;
-                            if (role != null)
-                                await chnl.SendMessageAsync(role.Mention + message);
-                            else
-                                await chnl.SendMessageAsync(message);
+                            var chnl = _client.GetChannel(moonPhaseChnlId) as ITextChannel;
+                            var canSend = g.CurrentUser.GetPermissions(chnl).SendMessages &&
+                                g.CurrentUser.GetPermissions(chnl).EmbedLinks;
 
-                            await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                            if (canSend)
+                            {
+                                if (role != null)
+                                    await chnl.SendMessageAsync(role.Mention + message);
+                                else
+                                    await chnl.SendMessageAsync(message);
+
+                                await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                            }
                         }
                         else if (botSpam && botSpamChnlId != 0)
                         {
-                            var chnl = _client.GetChannel(botSpamChnlId) as IMessageChannel;
-                            if (role != null)
-                                await chnl.SendMessageAsync(role.Mention + message);
-                            else
-                                await chnl.SendMessageAsync(message);
+                            var chnl = _client.GetChannel(botSpamChnlId) as ITextChannel;
+                            var canSend = g.CurrentUser.GetPermissions(chnl).SendMessages &&
+                                g.CurrentUser.GetPermissions(chnl).EmbedLinks;
 
-                            await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                            if (canSend)
+                            {
+                                if (role != null)
+                                    await chnl.SendMessageAsync(role.Mention + message);
+                                else
+                                    await chnl.SendMessageAsync(message);
+
+                                await Logger.LogAsync("Sending Alert to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                            }
                         }
                     }
                 }
@@ -244,7 +256,7 @@ namespace Dx2_DiscordBot
                         catch(Exception e)
                         {
                             Logger.LogAsync("Error: " + e.StackTrace);
-                        }                        
+                        }
                         return true;
                     }
                     else

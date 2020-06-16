@@ -90,10 +90,9 @@ namespace Dx2_DiscordBot
                 {
                     _ = Logger.LogAsync($"New News Posted! {ni.Title}");
                     _ = SendNews(ni);
+                    NewsItems.Add(ni);
                 }
             }
-
-            NewsItems = newNewsItems;
 
             ResetTimer();
         }

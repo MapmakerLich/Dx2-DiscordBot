@@ -160,17 +160,10 @@ namespace Dx2_DiscordBot
                     {
                         try
                         {
-                            if (ni.Image != null)
-                            {
-                                if (File.Exists(fileName))
-                                    await chnl.SendFileAsync(fileName, $"**{ni.Title}**\n{ni.Url}");
-                                else
-                                    await chnl.SendMessageAsync($"**{ni.Title}**\n{ni.Url}");
-                            }
+                            if (ni.Image != null && File.Exists(fileName))
+                                await chnl.SendFileAsync(fileName, $"**{ni.Title}**\n{ni.Url}");
                             else
-                            {
-                                await chnl.SendMessageAsync($"**\n{ni.Url}");
-                            }
+                                await chnl.SendMessageAsync($"**{ni.Title}**\n{ni.Url}");
 
                             await Logger.LogAsync("Sending News to '" + g.Name + "' in channel '" + chnl.Name + "'");
                         }

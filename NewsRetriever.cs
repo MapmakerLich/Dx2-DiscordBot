@@ -94,6 +94,8 @@ namespace Dx2_DiscordBot
                     _ = SendNews(ni, count);
                     NewsItems.Add(ni);
                     count = count++;
+
+                    await Task.Delay(15000);
                 }
             }
 
@@ -110,7 +112,7 @@ namespace Dx2_DiscordBot
             using (System.Net.WebClient client = new System.Net.WebClient())
             {
                 if (ni.Image != null)
-                    client.DownloadFile(new Uri(ni.Image), fileName);
+                    client.DownloadFileTaskAsync(new Uri(ni.Image), fileName).Wait();
 
                 foreach (var g in _client.Guilds)
                 {
@@ -169,11 +171,11 @@ namespace Dx2_DiscordBot
                         }
                         catch (Exception e)
                         {
-                            await Logger.LogAsync("Could not send to '" + g.Name + "' in channel '" + chnl.Name + "'");
+                            await Logger.LogAsync("Could not send to '" + g.Name + "' in channel '" + chnl.Name + "'. " + e.Message + " " + e.InnerException);
                         }
                     }
 
-                    
+                    await Task.Delay(5000);
                 }
             }
 

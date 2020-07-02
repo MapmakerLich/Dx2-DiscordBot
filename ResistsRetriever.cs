@@ -59,8 +59,13 @@ namespace Dx2_DiscordBot
                     {
                         var data = items[1].Split(" ");
 
-                        if (data.Length == 2 && SoftScanWords(data[0], data[1]))
-                            await chnl.SendMessageAsync("", false, GetElementsOfType(data[0], data[1]));
+                        if (data.Length == 2)
+                        { 
+                            if (SoftScanWords(data[0], data[1]))
+                                await chnl.SendMessageAsync("", false, GetElementsOfType(data[0], data[1]));
+                            else if(SoftScanWords(data[1], data[0]))
+                                await chnl.SendMessageAsync("", false, GetElementsOfType(data[1], data[0]));
+                        }
                         else
                             await chnl.SendMessageAsync("Could not parse request or incorrect commands were provided. Check !dx2help if you need more assistance.");
                     }

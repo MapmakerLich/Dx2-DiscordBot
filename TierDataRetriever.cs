@@ -43,7 +43,7 @@ namespace Dx2_DiscordBot
             await LoadData();
             Timer = new System.Timers.Timer();
             var now = DateTime.Now;
-            var tomorrow = new DateTime(now.Year, now.Month, now.Day + 1, 0, 5, 0);
+            var tomorrow = new DateTime(now.Year, now.Month, now.Day, 0, 5, 0).AddDays(1);
             var duration = (tomorrow - now).TotalMilliseconds;
             Timer.Interval = duration;
             Timer.Elapsed += Timer_Elapsed;

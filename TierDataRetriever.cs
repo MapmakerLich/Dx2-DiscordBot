@@ -118,7 +118,7 @@ namespace Dx2_DiscordBot
                 if (items[1].Trim().StartsWith("list"))
                 {
                     if (_client.GetChannel(channelId) is IMessageChannel chnl)
-                    {                        
+                    {
                         if (items[1].Trim() == "listdef")
                         {
                             if (PvPDefRatings != null)
@@ -306,6 +306,7 @@ namespace Dx2_DiscordBot
             demon.PvPDefScore = row["PvPDefScore"] is DBNull ? "" : (string)row["PvPDefScore"];
             demon.Pros = row["Pros"] is DBNull ? "" : (string)row["Pros"];
             demon.Cons = row["Cons"] is DBNull ? "" : (string)row["Cons"];
+            demon.Notes = row["Notes"] is DBNull ? "" : (string)row["Notes"];
 
             return demon;
         }
@@ -360,6 +361,7 @@ namespace Dx2_DiscordBot
         public string PvPDefScore;
         public string Pros;
         public string Cons;
+        public string Notes;
         public bool FiveStar;
 
         public double PvEScoreDbl
@@ -391,17 +393,21 @@ namespace Dx2_DiscordBot
 
         internal Embed WriteToDiscord()
         {
-            var url = "https://dx2wiki.com/index.php/" + Uri.EscapeDataString(Name) + "/Builds";
+            var url = "https://dx2wiki.com/index.php/Tier_List#" + Uri.EscapeDataString(Name).Replace("%20", "_");
             var thumbnail = "https://raw.githubusercontent.com/Alenael/Dx2DB/master/Images/Demons/" + Uri.EscapeDataString(Name.Replace("☆", "")) + ".jpg";
 
             var pros = "";
             var cons = "";
+            var notes = "";
 
             if (!string.IsNullOrEmpty(Pros))
                 pros = "* " + Pros.Replace("\n", "\n* ");
 
             if (!string.IsNullOrEmpty(Cons))
                 cons = "* " + Cons.Replace("\n", "\n* ");
+
+            if (!string.IsNullOrEmpty(Notes))
+                notes = "* " + Notes.Replace("\n", "\n* ");
 
             var bestArchetypePvE = "";
             if (BestArchetypePvE == "Any")
@@ -434,7 +440,9 @@ namespace Dx2_DiscordBot
             if (!string.IsNullOrEmpty(pros))
                 description += "Pros:\n" + pros + "\n\n";
             if (!string.IsNullOrEmpty(cons))
-                description += "Cons:\n" + cons;
+                description += "Cons:\n" + cons + "\n\n";
+            if (!string.IsNullOrEmpty(notes))
+                description += "Notes:\n" + notes;
 
             var eb = new EmbedBuilder();
             eb.WithTitle(Name);

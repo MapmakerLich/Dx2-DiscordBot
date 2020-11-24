@@ -19,6 +19,8 @@ namespace Dx2_DiscordBot
         public static SortedDictionary<int, List<DemonInfo>> PvPOffRatings;
         public static SortedDictionary<int, List<DemonInfo>> PvPDefRatings;
         public static SortedDictionary<int, List<DemonInfo>> PvERatings;
+        public static SortedDictionary<int, List<DemonInfo>> DemoPrelimRankings;
+        public static SortedDictionary<int, List<DemonInfo>> DemoBossRankings;
         public System.Timers.Timer Timer;
 
         private const int LEV_DISTANCE = 1;
@@ -70,13 +72,15 @@ namespace Dx2_DiscordBot
             PvPOffRatings = CreateRankings(Demons, 0);
             PvPDefRatings = CreateRankings(Demons, 1);
             PvERatings = CreateRankings(Demons, 2);
+            DemoPrelimRankings = CreateRankings(Demons, 3);
+            DemoBossRankings = CreateRankings(Demons, 4);
         }
 
         public SortedDictionary<int, List<DemonInfo>> CreateRankings(List<DemonInfo> demonInfo, int type)
         {
             var tempDict = new SortedDictionary<int, List<DemonInfo>>();
 
-            for(var i = 6; i < 11; i++)
+            for(var i = 4; i < 6; i++)
             {
                 var tempList = new List<DemonInfo>();
 
@@ -94,6 +98,14 @@ namespace Dx2_DiscordBot
                             break;
                         case 2:
                             if (d.PvEScoreDbl >= i && d.PvEScoreDbl < i + 1)
+                                tempList.Add(d);
+                            break;
+                        case 3:
+                            if (d.DemoPrelimScoreDbl >= i && d.DemoPrelimScoreDbl < i + 1)
+                                tempList.Add(d);
+                            break;
+                        case 4:
+                            if (d.DemoBossScoreDbl >= i && d.DemoBossScoreDbl < i + 1)
                                 tempList.Add(d);
                             break;
                     }
@@ -135,6 +147,22 @@ namespace Dx2_DiscordBot
                                 await chnl.SendMessageAsync("", false, embed);
                             }
                         }
+                        else if (items[1].Trim() == "listdemoprelim")
+                        {
+                            if (DemoPrelimRankings != null)
+                            {
+                                var embed = WriteTierListToDiscord(DemoPrelimRankings, "Top Demo Prelim Rankings", 3);
+                                await chnl.SendMessageAsync("", false, embed);
+                            }
+                        }
+                        else if (items[1].Trim() == "listdemoboss")
+                        {
+                            if (DemoBossRankings != null)
+                            {
+                                var embed = WriteTierListToDiscord(DemoBossRankings, "Top Demo Boss Rankings", 4);
+                                await chnl.SendMessageAsync("", false, embed);
+                            }
+                        }
                         else if (items[1].Trim() == "list")
                         {
                             if (PvPOffRatings != null)
@@ -155,35 +183,72 @@ namespace Dx2_DiscordBot
 
                     if (_client.GetChannel(channelId) is IMessageChannel chnl)
                     {
-                        //Find anyone matching the nickname of a demon
-                        var demonNickname = DemonRetriever.Demons.Find(d => d.Nicknames != "" && d.NicknamesList.Any(n => n == searchedDemon));
-
-                        if (demonNickname.Name != null)
-                            demon = Demons.Find(d => d.Name == demonNickname.Name);
-
-                        if (demon.Name == null)
+                        if (items[1].Trim() == String.Empty)
                         {
-                            //Find all similar demons
-                            List<String> similarDemons = GetSimilarDemons(searchedDemon, LEV_DISTANCE);
+                            await chnl.SendMessageAsync("Did you forget to add a demon?");
+                        }
+                        else
+                        {
+                            //Find anyone matching the nickname of a demon
+                            var demonNickname = DemonRetriever.Demons.Find(d => d.Nicknames != "" && d.NicknamesList.Any(n => n == searchedDemon));
 
-                            //If no similar demons found
-                            if (similarDemons.Count == 0)
+                            if (demonNickname.Name != null)
+                                demon = Demons.Find(d => d.Name == demonNickname.Name);
+
+                            if (demon.Name == null)
                             {
-                                List<string> demonsStartingWith = new List<string>();
+                                //Find all similar demons
+                                List<String> similarDemons = GetSimilarDemons(searchedDemon, LEV_DISTANCE);
 
-                                demonsStartingWith = FindDemonsStartingWith(searchedDemon);
-
-                                if (demonsStartingWith.Count == 1)
+                                //If no similar demons found
+                                if (similarDemons.Count == 0)
                                 {
-                                    demon = Demons.Find(x => x.Name.ToLower() == demonsStartingWith[0].ToLower());
+                                    List<string> demonsStartingWith = new List<string>();
+
+                                    demonsStartingWith = FindDemonsStartingWith(searchedDemon);
+
+                                    if (demonsStartingWith.Count == 1)
+                                    {
+                                        demon = Demons.Find(x => x.Name.ToLower() == demonsStartingWith[0].ToLower());
+                                        if (demon.Name != null)
+                                            await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
+                                    }
+                                    else if (demonsStartingWith.Count > 1)
+                                    {
+                                        string answerString = "Could not find: " + searchedDemon + ". Did you mean: ";
+
+                                        foreach (string fuzzyDemon in demonsStartingWith)
+                                        {
+                                            answerString += fuzzyDemon + ", ";
+                                        }
+
+                                        //Remove last space and comma
+                                        answerString = answerString.Remove(answerString.Length - 2);
+
+                                        answerString += "?";
+
+                                        await chnl.SendMessageAsync(answerString, false);
+                                    }
+                                    else
+                                    {
+                                        await chnl.SendMessageAsync("Could not find: " + searchedDemon + " its Tier Info may need to be added to the Wiki first.", false);
+                                    }
+                                }
+                                //If exactly 1 demon found, return its Info
+                                else if (similarDemons.Count == 1)
+                                {
+                                    //Find exactly this demon
+                                    demon = Demons.Find(x => x.Name.ToLower() == similarDemons[0].ToLower());
                                     if (demon.Name != null)
                                         await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
                                 }
-                                else if (demonsStartingWith.Count > 1)
+                                //If similar demons found
+                                else
                                 {
+                                    //Build answer string
                                     string answerString = "Could not find: " + searchedDemon + ". Did you mean: ";
 
-                                    foreach (string fuzzyDemon in demonsStartingWith)
+                                    foreach (string fuzzyDemon in similarDemons)
                                     {
                                         answerString += fuzzyDemon + ", ";
                                     }
@@ -195,40 +260,10 @@ namespace Dx2_DiscordBot
 
                                     await chnl.SendMessageAsync(answerString, false);
                                 }
-                                else
-                                {
-                                    await chnl.SendMessageAsync("Could not find: " + searchedDemon + " its Tier Info may need to be added to the Wiki first.", false);
-                                }
                             }
-                            //If exactly 1 demon found, return its Info
-                            else if (similarDemons.Count == 1)
-                            {
-                                //Find exactly this demon
-                                demon = Demons.Find(x => x.Name.ToLower() == similarDemons[0].ToLower());
-                                if (demon.Name != null)
-                                    await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
-                            }
-                            //If similar demons found
                             else
-                            {
-                                //Build answer string
-                                string answerString = "Could not find: " + searchedDemon + ". Did you mean: ";
-
-                                foreach (string fuzzyDemon in similarDemons)
-                                {
-                                    answerString += fuzzyDemon + ", ";
-                                }
-
-                                //Remove last space and comma
-                                answerString = answerString.Remove(answerString.Length - 2);
-
-                                answerString += "?";
-
-                                await chnl.SendMessageAsync(answerString, false);
-                            }
+                                await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
                         }
-                        else
-                            await chnl.SendMessageAsync("", false, demon.WriteToDiscord());
                     }
                 }
             }
@@ -280,9 +315,11 @@ namespace Dx2_DiscordBot
         public override string GetCommands()
         {
             return "\n\nTier Data Commands:" +
-            "\n* " + MainCommand + "list - Displays each demon in the top 4 tiers in the PvP Off tier list." +
-            "\n* " + MainCommand + "listdef - Displays each demon in the top 4 tiers in the PvP Def tier list." +
-            "\n* " + MainCommand + "listpve - Displays each demon in the top 4 tiers in the PvE tier list." +
+            "\n* " + MainCommand + "list - Displays each demon in the top 2 tiers in the PvP Off tier list." +
+            "\n* " + MainCommand + "listdef - Displays each demon in the top 2 tiers in the PvP Def tier list." +
+            "\n* " + MainCommand + "listpve - Displays each demon in the top 2 tiers in the PvE tier list." +
+            "\n* " + MainCommand + "listdemoprelim - Displays each demon in the top 2 tiers in the Demo Prelim list." +
+            "\n* " + MainCommand + "listdemoboss - Displays each demon in the top 2 tiers in the Demo Boss list." +
             "\n* " + MainCommand + " [Demon Name] - Search's for a demon with the name you provided as [Demon Name]. If nothing is found you will recieve a message back stating Demon was not found. Alternate demons can be found like.. Shiva A, Nekomata A. ☆ can be interperted as * when performing searches like... Nero*, V*";
         }
 
@@ -304,6 +341,8 @@ namespace Dx2_DiscordBot
             demon.PvEScore = row["PvEScore"] is DBNull ? "" : (string)row["PvEScore"];
             demon.PvPOffenseScore = row["PvPOffenseScore"] is DBNull ? "" : (string)row["PvPOffenseScore"];
             demon.PvPDefScore = row["PvPDefScore"] is DBNull ? "" : (string)row["PvPDefScore"];
+            demon.DemoPrelimScore = row["DemoPrelimScore"] is DBNull ? "" : (string)row["DemoPrelimScore"];
+            demon.DemoBossScore = row["DemoBossScore"] is DBNull ? "" : (string)row["DemoBossScore"];
             demon.Pros = row["Pros"] is DBNull ? "" : (string)row["Pros"];
             demon.Cons = row["Cons"] is DBNull ? "" : (string)row["Cons"];
             demon.Notes = row["Notes"] is DBNull ? "" : (string)row["Notes"];
@@ -333,6 +372,12 @@ namespace Dx2_DiscordBot
                         case 2:
                             demonsList += $"{demon.Name} ({demon.PvEScoreDbl}), ";
                             break;
+                        case 3:
+                            demonsList += $"{demon.Name} ({demon.DemoPrelimScoreDbl}), ";
+                            break;
+                        case 4:
+                            demonsList += $"{demon.Name} ({demon.DemoBossScoreDbl}), ";
+                            break;
                     }
                 }
 
@@ -359,6 +404,8 @@ namespace Dx2_DiscordBot
         public string PvEScore;
         public string PvPOffenseScore;
         public string PvPDefScore;
+        public string DemoPrelimScore;
+        public string DemoBossScore;
         public string Pros;
         public string Cons;
         public string Notes;
@@ -387,6 +434,22 @@ namespace Dx2_DiscordBot
             get
             {
                 double.TryParse(PvPOffenseScore, out double dbl);
+                return dbl;
+            }
+        }
+        public double DemoPrelimScoreDbl
+        {
+            get
+            {
+                double.TryParse(DemoPrelimScore, out double dbl);
+                return dbl;
+            }
+        }
+        public double DemoBossScoreDbl
+        {
+            get
+            {
+                double.TryParse(DemoBossScore, out double dbl);
                 return dbl;
             }
         }
@@ -456,6 +519,10 @@ namespace Dx2_DiscordBot
                 eb.AddField("PvP Offense Rating", PvPOffenseScore, true);
             if (!string.IsNullOrEmpty(PvPDefScore))
                 eb.AddField("PvP Defense Rating", PvPDefScore, true);
+            if (!string.IsNullOrEmpty(DemoPrelimScore))
+                eb.AddField("Demo Prelim Rating", DemoPrelimScore, true);
+            if (!string.IsNullOrEmpty(DemoBossScore))
+                eb.AddField("Demo Boss Rating", DemoBossScore, true);
             eb.WithDescription(description);
             eb.WithFooter("If you disagree with this discuss in #tier-list in Dx2 Liberation Discord Server or update the Wiki page by clicking the demons name at the top.");
             eb.WithUrl(url);

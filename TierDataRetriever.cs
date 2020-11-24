@@ -469,7 +469,7 @@ namespace Dx2_DiscordBot
             if (!string.IsNullOrEmpty(Cons))
                 cons = "* " + Cons.Replace("\n", "\n* ");
 
-            if (!string.IsNullOrEmpty(Notes))
+            if (!string.IsNullOrEmpty(Notes) && Notes != "-")
                 notes = "* " + Notes.Replace("\n", "\n* ");
 
             var bestArchetypePvE = "";

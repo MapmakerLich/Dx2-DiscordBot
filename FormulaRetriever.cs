@@ -167,7 +167,7 @@ namespace Dx2_DiscordBot
             "\n* " + MainCommand + "inf - Displays Infliction Formula." +
             "\n* " + MainCommand + "stat - Displays Stat Formulas." +
             "\n* " + MainCommand + "heal - Displays Heal Formula." +
-            "\n* " + MainCommand + "crit - Displays Heal Formula.";
+            "\n* " + MainCommand + "crit - Displays Crit Chance Formula.";
         }
 
         #endregion
